@@ -1,9 +1,143 @@
 \section{问题二的模型的建立和求解}
 \subsection{问题二的描述与分析}
 
+问题二考虑动态环境下的多时间段资源分配场景。与问题一的静态单时刻分配不同，问题二面临用户移动性、信道时变性以及任务队列动态变化的复杂问题。在1000ms的观测窗口内，系统需要每100ms进行一次资源分配决策（共10次），既要处理新到达的任务，又要考虑积压在排队队列中的历史任务。这是一个多阶段动态优化问题，需要在时间维度上综合考虑任务到达、信道变化和排队延迟的耦合影响。
+
 \subsection{预备工作}
+为便于复现与对比，本问采用如下统一的数据、参数与约定：
+
+\begin{itemize}
+  \item 数据来源（附件2，动态数据）：任务到达流 \texttt{q2\_用户任务流.csv}（单位：Mbit，1ms时间粒度）、大规模衰减 \texttt{q2\_大规模衰减.csv}（单位：dB）、小规模瑞利衰减 \texttt{q2\_小规模瑞丽衰减.csv}（幅度 $|h|$）、用户位置 \texttt{q2\_用户位置.csv}（坐标信息）。按列名一一对应同名用户，忽略非数值列（如 \texttt{Time}）。
+  \item 决策周期：每100ms进行一次资源分配决策，共10个决策时刻：$t \in \{0, 100, 200, \ldots, 900\}$ ms。
+  \item 系统与物理层参数：单小区、无同频干扰；发射功率 $p_{\text{tx}}=30\,\text{dBm}$；单RB带宽 $b=360\,\text{kHz}$；噪声系数 $NF=7\,\text{dB}$。白噪声按问题一相同公式计算。
+  \item 资源占用粒度（同表1）：URLLC/eMBB/mMTC 用户并发占用RB数分别为 $v_U=10$、$v_e=5$、$v_m=2$。约束切片RB分配满足 $n_U\bmod 10=0$、$n_e\bmod 5=0$、$n_m\bmod 2=0$，且 $n_U+n_e+n_m=50$。
+  \item SLA与QoS：各切片的SLA参数、QoS函数定义与问题一完全一致。
+  \item 任务处理机制：每个决策周期内，先服务队列中的历史任务（按FIFO顺序），再处理新到达任务；任务传输可跨越多个决策周期；超过SLA时延的任务立即丢弃并计入惩罚。
+\end{itemize}
 
 \subsection{模型建立}
+
+\subsubsection{时变信道与传输速率模型}
+
+在动态环境中，用户$k$在时刻$t$的接收功率需要考虑时变信道特性：
+
+\begin{equation}
+p_{\text{rx},k}(t) = 10^{\frac{p_{\text{tx}} - \phi_k(t)}{10}} \cdot |h_k(t)|^2 \quad \text{(mW)}
+\end{equation}
+
+其中，$\phi_k(t)$和$h_k(t)$分别为时刻$t$用户$k$的大规模衰减和小规模瑞利衰落系数。
+
+相应地，用户$k$在时刻$t$获得$i_k(t)$个资源块时的传输速率为：
+
+\begin{equation}
+r_k(t) = i_k(t) \cdot b \cdot \log_2\left(1 + \frac{p_{\text{rx},k}(t)}{10^{\frac{N_0(i_k(t))}{10}}}\right) \quad \text{(bps)}
+\end{equation}
+
+\subsubsection{任务队列动态演化模型}
+
+定义用户$k$在时刻$t$的任务队列状态：
+
+\begin{itemize}
+  \item $A_{k,\tau}(t)$：用户$k$在时刻$\tau$到达且在时刻$t$仍在队列中的任务数据量（Mbit）
+  \item $Q_k(t) = \sum_{\tau=0}^{t} A_{k,\tau}(t)$：用户$k$在时刻$t$的总排队任务量
+  \item $W_k(t)$：用户$k$在时刻$t$已等待的排队时间
+\end{itemize}
+
+任务队列的动态演化遵循以下规律：
+
+\textbf{(1) 任务到达：}
+在每个1ms时刻$\tau$，根据数据文件读取新到达任务：
+\begin{equation}
+A_{k,\tau}(\tau) = \text{TaskFlow}_k(\tau)
+\end{equation}
+
+\textbf{(2) 任务服务：}
+在决策时刻$t$，若用户$k$被分配$i_k(t)$个RB，则在接下来的100ms内可传输的数据量为：
+\begin{equation}
+S_k(t) = r_k(t) \times 0.1 \times 10^{-6} \quad \text{(Mbit)}
+\end{equation}
+
+\textbf{(3) 队列更新：}
+任务按FIFO顺序服务，队列更新规则为：
+\begin{equation}
+Q_k(t+100) = \max\left(0, Q_k(t) + \sum_{\tau=t+1}^{t+100} \text{TaskFlow}_k(\tau) - S_k(t)\right)
+\end{equation}
+
+\subsubsection{时延计算模型}
+
+对于用户$k$在时刻$\tau$到达的任务，其总时延包含排队时延和传输时延：
+
+\textbf{(1) 排队时延：}
+任务在时刻$\tau$到达，在时刻$t_{\text{start}}$开始服务，则排队时延为：
+\begin{equation}
+Q_{k,\tau} = t_{\text{start}} - \tau
+\end{equation}
+
+\textbf{(2) 传输时延：}
+假设任务从时刻$t_{\text{start}}$开始传输，数据量为$D_{k,\tau}$，则传输时延为：
+\begin{equation}
+T_{k,\tau} = \frac{D_{k,\tau} \times 10^6}{r_k(t_{\text{start}})}
+\end{equation}
+
+\textbf{(3) 总时延：}
+\begin{equation}
+L_{k,\tau}^s = Q_{k,\tau} + T_{k,\tau}, \quad s \in \{U, e, m\}
+\end{equation}
+
+\subsubsection{动态服务质量评估函数}
+
+在多时间段场景下，各切片的QoS评估需要考虑所有完成任务的累积效果：
+
+\textbf{(1) URLLC切片：}
+对于在时间窗口$[0, 1000]$ms内完成的所有URLLC任务：
+\begin{equation}
+y_{k,\tau}^{U} = \begin{cases}
+\alpha^{L_{k,\tau}^{U}} & \text{若 } L_{k,\tau}^{U} \leq L_{U}^{\text{SLA}} \\
+-M_{U} & \text{若 } L_{k,\tau}^{U} > L_{U}^{\text{SLA}}
+\end{cases}
+\end{equation}
+
+\textbf{(2) eMBB切片：}
+对于在决策时刻$t$服务的eMBB用户$k$：
+\begin{equation}
+y_{k}^{e}(t) = \begin{cases}
+1 & \text{若 } r_k(t) \geq r_{e}^{\text{SLA}} \text{ 且 } L_{k,\tau}^{e} \leq L_{e}^{\text{SLA}} \\
+\frac{r_k(t)}{r_{e}^{\text{SLA}}} & \text{若 } r_k(t) < r_{e}^{\text{SLA}} \text{ 且 } L_{k,\tau}^{e} \leq L_{e}^{\text{SLA}} \\
+-M_{e} & \text{若} L_{k,\tau}^{e} > L_{e}^{\text{SLA}}
+\end{cases}
+\end{equation}
+
+\textbf{(3) mMTC切片：}
+在每个决策时刻$t$，mMTC切片的QoS基于接入成功率：
+\begin{equation}
+y^{m}(t) = \frac{\sum_{k \in \mathcal{U}_{m}(t)} c_k'(t)}{\sum_{k \in \mathcal{U}_{m}(t)} c_k(t)}
+\end{equation}
+其中，$c_k(t)$表示用户$k$在时刻$t$是否有待服务任务，$c_k'(t)$表示是否成功接入服务。
+
+\subsubsection{多时间段优化模型}
+
+基于上述分析，建立如下多时间段动态优化模型：
+
+\begin{equation}
+\begin{aligned}
+\max_{\{n_s(t)\}_{s,t}} \quad & Q_{i} = \sum_{t \in \mathcal{T}} \left[ \sum_{k \in \mathcal{U}_U} y_{k}^{U}(t) + \sum_{k \in \mathcal{U}_e} y_{k}^{e}(t) + y^{m}(t) \right]\\
+\text{s.t.} \quad & \begin{cases}
+ n_U(t) + n_e(t) + n_m(t) = 50 \\
+ n_U(t) \bmod 10 = 0 \\
+ n_e(t) \bmod 5 = 0  \\
+ n_m(t) \bmod 2 = 0 \\
+ Q_k(t+100) = \max(0, Q_k(t) + \Delta A_k(t) - S_k(t))\\
+n_s(t) \geq 0 \\
+\quad \forall t \in \mathcal{T},\quad \forall s \in \mathcal{S},\quad \forall k, t
+ \end{cases}
+ \end{aligned}
+ \end{equation}
+\begin{equation}
+Q_{\text{total}} = \sum_{i=1}^{10} Q_{i}
+\end{equation}
+其中，$\mathcal{T} = \{0, 100, 200, \ldots, 900\}$为决策时刻集合，$i$为决策次数，$n_s(t)$为时刻$t$分配给切片$s$的RB数量，$Q_k(t)$为用户$k$在时刻$t$的排队任务量，$\Delta A_k(t)$为时间段$[t, t+100)$内用户$k$的新增任务量。
+
+该模型的核心挑战在于：(1) 状态空间的指数级增长；(2) 任务到达的随机性与信道的时变性；(3) 排队时延与传输时延的耦合优化。需要设计高效的求解算法来处理这一复杂的多阶段随机优化问题。
 
 \subsection{模型求解}
 

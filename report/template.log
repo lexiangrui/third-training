@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.5.19)  12 AUG 2025 15:31
-=======
-This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2024.10.22)  12 AUG 2025 16:14
->>>>>>> 82b7a6eac7cad0db9e555449950945c49d77e6e3
+This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.5.19)  12 AUG 2025 20:50
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1100,7 +1096,6 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 \tf@toc=\write6
 \openout6 = `template.toc'.
 
-<<<<<<< HEAD
 
 
 [3]
@@ -1110,87 +1105,68 @@ Overfull \hbox (5.09286pt too wide) in paragraph at lines 49--50
 
 
 
-[4] (./q1.tex) (./q2.tex
+[4] (./q1.tex
 
 [5]
+LaTeX Font Info:    Calculating math sizes for size <12.05> on input line 10.
+
 
 [6]
 
-[7]) (./q3.tex)
+[7]
 
-[8]
-No file template.bbl.
+LaTeX Warning: Reference ` ' on page 8 undefined on input line 126.
 
 
-[9] (d:/texlive/2025/texmf-dist/tex/latex/listings/lstlang1.sty
-File: lstlang1.sty 2024/09/23 1.10c listings language file
-)
-Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on input line 147.
- (./code/q1.m) (d:/texlive/2025/texmf-dist/tex/latex/listings/lstlang1.sty
-File: lstlang1.sty 2024/09/23 1.10c listings language file
-) (./code/q2.py) (d:/texlive/2025/texmf-dist/tex/latex/listings/lstlang1.sty
-File: lstlang1.sty 2024/09/23 1.10c listings language file
-) (d:/texlive/2025/texmf-dist/tex/latex/listings/lstmisc.sty
-File: lstmisc.sty 2024/09/23 1.10c (Carsten Heinz)
-) (./code/q3.c) (d:/texlive/2025/texmf-dist/tex/latex/listings/lstlang1.sty
-File: lstlang1.sty 2024/09/23 1.10c listings language file
-) (./code/q4.cpp)
-=======
- [3] (./q1.tex [4]
-LaTeX Font Info:    Calculating math sizes for size <12.05> on input line 10.
- [5] [6]
+Overfull \hbox (0.12387pt too wide) in paragraph at lines 143--144
+[]\TU/SimSun(0)/m/n/12.05 基 于 附 件 \TU/TimesNewRoman(0)/m/n/12.05 1 \TU/SimSun(0)/m/n/12.05 数 据 与 上 述 流 程，|  得 到 的 最 优 分 配 与 接 入 如 下  |（发 射 功 率 固 定 为 $\OT1/cmr/m/n/12.05 30 []$\TU/SimSun(0)/m/n/12.05 ） ：| 
+ []
 
-LaTeX Warning: Reference ` ' on page 7 undefined on input line 126.
 
-[7]) (./q2.tex) (./q3.tex [8])
-No file template.bbl.
+
+[8]) (./q2.tex
+Overfull \hbox (9.44376pt too wide) in paragraph at lines 11--12
+[]\TU/SimSun(0)/m/n/12.05 决 策 周 期：|  每 \TU/TimesNewRoman(0)/m/n/12.05 100ms \TU/SimSun(0)/m/n/12.05 进 行 一 次 资 源 分 配 决 策，|  共 \TU/TimesNewRoman(0)/m/n/12.05 10 \TU/SimSun(0)/m/n/12.05 个 决 策 时 刻：| $\OML/cmm/m/it/12.05 t \OMS/cmsy/m/n/12.05 2 f\OT1/cmr/m/n/12.05 0\OML/cmm/m/it/12.05 ; \OT1/cmr/m/n/12.05 100\OML/cmm/m/it/12.05 ; \OT1/cmr/m/n/12.05 200\OML/cmm/m/it/12.05 ; [] ; \OT1/cmr/m/n/12.05 900\OMS/cmsy/m/n/12.05 g$
+ []
+
+
+
 [9]
->>>>>>> 82b7a6eac7cad0db9e555449950945c49d77e6e3
+
+[10]
+
+[11]) (./q3.tex
+
+[12])
+No file template.bbl.
+
+
+[13]
 
 Package caption Warning: Unused \captionsetup[sub] on input line 11.
 See the caption package documentation for explanation.
 
-<<<<<<< HEAD
 
 
-=======
->>>>>>> 82b7a6eac7cad0db9e555449950945c49d77e6e3
-[10] (./template.aux)
+[14] (./template.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2022/08/05>
  ***********
-<<<<<<< HEAD
-Package rerunfilecheck Info: File `template.out' has not changed.
-(rerunfilecheck)             Checksum: BBA7B9497B8039A6465E5E62F938D197;4709.
- ) 
-Here is how much of TeX's memory you used:
- 34701 strings out of 475796
- 713941 string characters out of 5774033
- 1338051 words of memory out of 5000000
- 56973 multiletter control sequences out of 15000+600000
- 576339 words of font info for 166 fonts, out of 8000000 for 9000
- 36 hyphenation exceptions out of 8191
- 108i,17n,125p,472b,1697s stack positions out of 10000i,1000n,20000p,200000b,200000s
-=======
 
 
 LaTeX Warning: There were undefined references.
 
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
 Package rerunfilecheck Info: File `template.out' has not changed.
-(rerunfilecheck)             Checksum: 1DBCF4C4509AF0657B4847F7E761A848;4329.
+(rerunfilecheck)             Checksum: 9D175DF84D4680FE4351E8CF0798BC0F;5189.
  ) 
 Here is how much of TeX's memory you used:
- 34380 strings out of 474773
- 726729 string characters out of 5757723
- 1941839 words of memory out of 5000000
- 55865 multiletter control sequences out of 15000+600000
- 579646 words of font info for 187 fonts, out of 8000000 for 9000
- 1348 hyphenation exceptions out of 8191
- 108i,13n,114p,472b,645s stack positions out of 10000i,1000n,20000p,200000b,200000s
->>>>>>> 82b7a6eac7cad0db9e555449950945c49d77e6e3
+ 34067 strings out of 475796
+ 714941 string characters out of 5774033
+ 1116764 words of memory out of 5000000
+ 56343 multiletter control sequences out of 15000+600000
+ 580414 words of font info for 187 fonts, out of 8000000 for 9000
+ 36 hyphenation exceptions out of 8191
+ 108i,13n,125p,472b,484s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on template.pdf (10 pages).
+Output written on template.pdf (14 pages).
