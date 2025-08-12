@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2024.10.22)  12 AUG 2025 16:14
+This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2024.10.22)  12 AUG 2025 16:36
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1103,25 +1103,26 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 
  [3] (./q1.tex [4]
 LaTeX Font Info:    Calculating math sizes for size <12.05> on input line 10.
- [5] [6]
+ [5] [6] [7]
 
-LaTeX Warning: Reference ` ' on page 7 undefined on input line 126.
+LaTeX Font Warning: Font shape `TU/STSong(1)/b/n' undefined
+(Font)              using `TU/STSong(1)/m/n' instead on input line 148.
 
-[7]) (./q2.tex) (./q3.tex [8])
+) (./q2.tex [8]) (./q3.tex [9])
 No file template.bbl.
-[9]
+[10]
 
 Package caption Warning: Unused \captionsetup[sub] on input line 11.
 See the caption package documentation for explanation.
 
-[10] (./template.aux)
+[11] (./template.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2022/08/05>
  ***********
 
 
-LaTeX Warning: There were undefined references.
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 
 LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
@@ -1130,12 +1131,12 @@ Package rerunfilecheck Info: File `template.out' has not changed.
 (rerunfilecheck)             Checksum: 1DBCF4C4509AF0657B4847F7E761A848;4329.
  ) 
 Here is how much of TeX's memory you used:
- 34380 strings out of 474773
- 726729 string characters out of 5757723
- 1941839 words of memory out of 5000000
- 55865 multiletter control sequences out of 15000+600000
+ 34400 strings out of 474773
+ 727802 string characters out of 5757723
+ 1942839 words of memory out of 5000000
+ 55885 multiletter control sequences out of 15000+600000
  579646 words of font info for 187 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 108i,13n,114p,472b,645s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 108i,13n,114p,472b,622s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on template.pdf (10 pages).
+Output written on template.pdf (11 pages).

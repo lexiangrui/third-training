@@ -12,10 +12,10 @@
   \begin{equation}
     N_0\,(\mathrm{dBm}) = -174 + 10\log_{10}(i\,b) + NF
   \end{equation}
-  并换算为mW。仅考虑传输时延，单时刻下排队时延取 $Q_k=0$。
+  并换算为mW。
   \item 资源占用粒度（同表1）：URLLC/eMBB/mMTC 用户并发占用RB数分别为 $v_U=10$、$v_e=5$、$v_m=2$。为避免RB碎片化，约束切片RB分配满足 $n_U\bmod 10=0$、$n_e\bmod 5=0$、$n_m\bmod 2=0$，且 $n_U+n_e+n_m=50$。
   \item SLA与QoS：URLLC 时延SLA $L_U^{\mathrm{SLA}}=5\,\mathrm{ms}$、折扣因子 $\alpha=0.95$、惩罚 $M_U=5$；eMBB 速率SLA $r_e^{\mathrm{SLA}}=50\,\mathrm{Mbps}$、时延SLA $L_e^{\mathrm{SLA}}=100\,\mathrm{ms}$、惩罚 $M_e=3$；mMTC 时延SLA $L_m^{\mathrm{SLA}}=500\,\mathrm{ms}$、惩罚 $M_m=1$。
-  \item 评估口径：URLLC/eMBB 以用户级QoS加和；mMTC 以满足SLA的接入比例计分（当期存在任务的mMTC用户数作分母）。
+  \item 排队与评估口径：同一决策下允许在切片内“编号靠前优先”的串并行调度，后到用户可在前序用户完成后接续占用RB；URLLC/eMBB 以用户级QoS加和；mMTC 以满足SLA的接入比例计分（当期存在任务的mMTC用户数作分母）。
 \end{itemize}
 \subsection{模型建立}
 
@@ -115,37 +115,81 @@ y_k^{m} = \begin{cases}
 
 其中，第一个约束为资源块总数限制，第二个约束为非负约束，第三个约束为整数约束。
 \subsection{模型求解}
-为求解最优切片RB分配与接入选择，采用离散枚举结合贪心选择的求解流程：
+为求解最优切片RB分配与同周期排队调度，采用“离散枚举 + 切片内串并行调度”的流程：
 
 \begin{enumerate}
-  \item 切片RB枚举：枚举 $R_U\in\{0,10,\dots,50\}$、$R_e\in\{0,5,\dots,50-R_U\}$，令 $R_m=50-R_U-R_e$，若 $R_m<0$ 或 $R_m\bmod 2\ne 0$ 则跳过。并发可接入上限为 $\mathrm{cap}_U=\lfloor R_U/10\rfloor$、$\mathrm{cap}_e=\lfloor R_e/5\rfloor$、$\mathrm{cap}_m=\lfloor R_m/2\rfloor$。
-  \item 指标计算：对每个用户按其所属切片以固定并发RB数 $v_s\in\{10,5,2\}$ 计算
+  \item 切片RB枚举：枚举 $R_U\in\{0,10,\dots,50\}$、$R_e\in\{0,5,\dots,50-R_U\}$，令 $R_m=50-R_U-R_e$，若 $R_m<0$ 或 $R_m\bmod 2\ne 0$ 则跳过。各切片并发容量 $\mathrm{cap}_U=\lfloor R_U/10\rfloor$、$\mathrm{cap}_e=\lfloor R_e/5\rfloor$、$\mathrm{cap}_m=\lfloor R_m/2\rfloor$。
+  \item 切片内调度：对切片 $s\in\{U,e,m\}$，所有用户按“编号靠前优先”的固定顺序进入队列。以固定占用 $v_s$ 计算其独占传输时延 $T_k$ 与速率 $r_k$，并采用 $\mathrm{cap}_s$ 台并行服务器的无抢占调度：先填满并行槽位，之后每当最早完成的会话释放，队列头用户即时接续，占用直至完成。由此得到等待 $Q_k$ 与总时延 $L_k=Q_k+T_k$。
+  \item QoS 计算与聚合：对URLLC与eMBB逐用户按 $L_k$（及 $r_k$）代入其QoS定义计分并求和；对mMTC统计满足 $L_k\le L_m^{\mathrm{SLA}}$ 的用户数占比作为 $y^{m}$。
+  \item 目标计算与最优解提取：
   \[
-    r_k = v_s\,b\,\log_2\bigl(1+\gamma_k\bigr),\quad T_k=\frac{D_k\cdot10^6}{r_k},\quad L_k=T_k \ (Q_k=0)
+    Q(R_U,R_e,R_m)=\sum_{k\in\mathcal U_U} y_k^U + \sum_{k\in\mathcal U_e} y_k^e + y^{m}
   \]
-  并据式(\ref{ })中各切片QoS定义得到 $y_k^s$（URLLC：$\alpha^{L_k}$；eMBB：分段函数；mMTC：是否满足时延SLA）。
-  \item 接入选择：
-  \begin{itemize}
-    \item URLLC/eMBB：过滤 $y_k^s\!>\!0$ 的用户，按 $y_k^s$ 从高到低取不超过 $\mathrm{cap}_s$ 个；
-    \item mMTC：筛选满足 $L_k\le L_m^{\mathrm{SLA}}$ 的用户，并按“编号靠前优先”的统一顺序取不超过 $\mathrm{cap}_m$ 个（与题目处理顺序一致）。
-  \end{itemize}
-  \item 目标计算：
-  \[
-    Q(R_U,R_e,R_m)=\sum_{k\in\mathcal U_U} y_k^U + \sum_{k\in\mathcal U_e} y_k^e + \underbrace{\frac{\#\,\text{mMTC已接入}}{\#\,\text{当期有任务的mMTC}}}_{y^{m}}
-  \]
-  记录达到最大 $Q$ 的分配与接入集合及其关键指标。
+  取 $Q$ 最大的切片RB分配与相应调度结果作为最优解。
 \end{enumerate}
 
-该方法的搜索空间规模仅为 $\mathcal O(\frac{50}{10}\cdot\frac{50}{5})$ 量级的枚举，配以线性时间的用户评分与选择，整体复杂度低且可完全遍历，能够找到全局最优的离散解；同时满足题目给定的“资源块相邻”“编号靠前优先”等实现约束。
+该方法在分配层面保持小规模枚举，调度层面采用线性对数复杂度的最早完成时间堆维护，整体复杂度低、可复现，并严格符合题目“编号靠前优先、可在同一决策中依次占用RB”的处理规则。
 
 \subsection{求解结果}
 
-基于附件1数据与上述流程，得到的最优分配与接入如下（发射功率固定为 $30\,\mathrm{dBm}$）：
+基于附件1数据与上述流程，得到允许排队后的最优分配与接入如下（发射功率固定为 $30\,\mathrm{dBm}$）：
 
 \begin{itemize}
-  \item 最优切片RB分配：$R_U=20,\ R_e=20,\ R_m=10$（合计50）。
-  \item 接入选择：URLLC 接入 \{U2, U1\}；eMBB 接入 \{e1, e2, e4, e3\}；mMTC 接入 \{m1, m2, m3, m4, m5\}。
-  \item 关键指标：mMTC 接入比例 $y^{m}=0.5000$；URLLC QoS 合计 $\sum y^{U}=1.9870$；eMBB QoS 合计 $\sum y^{e}=3.7953$；目标函数 $Q=6.2823$。
+  \item 最优切片RB分配：$R_U=20,\ R_e=10,\ R_m=20$（合计50）。
+  \item 接入选择：URLLC 接入 \{U1, U2\}；eMBB 接入 \{e1, e2, e3, e4\}；mMTC 全部接入 \{m1\textasciitilde m10\}。
+  \item 关键指标：mMTC 接入比例 $y^{m}=1.0000$；URLLC QoS 合计 $\sum y^{U}=1.9870$；eMBB QoS 合计 $\sum y^{e}=3.7953$；目标函数 $Q=6.7823$。
 \end{itemize}
 
-说明：所有被接入的URLLC与mMTC任务均满足各自时延SLA；eMBB中 \texttt{e3} 的瞬时速率低于 $50\,\mathrm{Mbps}$，按 $r/r_e^{\mathrm{SLA}}$ 计分（约 $0.7953$），其余 eMBB 用户达到满分；该组合在保证URLLC低时延与较高eMBB速率的同时，实现了mMTC一半终端的及时接入，从而使总体服务质量达到最大。
+为便于阅览，给出最优方案下各用户关键指标表。
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{URLLC 用户关键指标（最优分配 $R_U=20,\ R_e=10,\ R_m=20$）}
+  \begin{tabular}{lccc}
+    \hline
+    用户 & r(Mbps) & L(ms) & QoS \\
+    \hline
+    U1 & 71.028 & 0.145 & 0.9926 \\
+    U2 & 100.783 & 0.110 & 0.9944 \\
+    \hline
+  \end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{eMBB 用户关键指标（最优分配 $R_U=20,\ R_e=10,\ R_m=20$）}
+  \begin{tabular}{lccc}
+    \hline
+    用户 & r(Mbps) & L(ms) & QoS \\
+    \hline
+    e1 & 54.217 & 2.017 & 1.0000 \\
+    e2 & 51.686 & 2.182 & 1.0000 \\
+    e3 & 39.766 & 4.546 & 0.7953 \\
+    e4 & 57.878 & 5.605 & 1.0000 \\
+    \hline
+  \end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{mMTC 用户关键指标（最优分配 $R_U=20,\ R_e=10,\ R_m=20$）}
+  \begin{tabular}{lccc}
+    \hline
+    用户 & r(Mbps) & L(ms) & 是否满足SLA \\
+    \hline
+    m1 & 19.524 & 0.623 & 是 \\
+    m2 & 19.607 & 0.639 & 是 \\
+    m3 & 17.219 & 0.747 & 是 \\
+    m4 & 21.306 & 0.580 & 是 \\
+    m5 & 20.234 & 0.607 & 是 \\
+    m6 & 23.069 & 0.596 & 是 \\
+    m7 & 21.489 & 0.610 & 是 \\
+    m8 & 19.334 & 0.709 & 是 \\
+    m9 & 17.815 & 0.713 & 是 \\
+    m10 & 19.062 & 0.672 & 是 \\
+    \hline
+  \end{tabular}
+\end{table}

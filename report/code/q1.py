@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-问题一：单小区、无干扰、功率30 dBm，使用枚举法进行切片RB分配与并发接入选择，
-最大化总体服务质量（URLLC+eMBB+mMTC）。
+问题一：单小区、无干扰、功率30 dBm。采用“切片RB枚举 + 同周期内可排队的串并行调度”以最大化总体服务质量（URLLC+eMBB+mMTC）。
 
 数据来源（相对路径，基于本脚本所在目录）：
 - 任务量：../../题目/附件/附件1/q1_任务流.csv （单位：Mbit）
@@ -13,15 +12,16 @@
 假设与参数：
 - p_tx = 30 dBm，b = 360 kHz，NF = 7 dB。
 - v_U=10, v_E=5, v_M=2（每类用户并发占用RB数）。
+- 决策周期 T_window = 100 ms；同一周期内允许在各切片内按“编号靠前优先”进行排队服务（先占先得，完成即释放RB，后继用户接续占用）。
 - SLA：URLLC: L<=5 ms；eMBB: L<=100 ms 且 r>=50 Mbps；mMTC: L<=500 ms。
 - QoS：
   URLLC: y = alpha^L(ms) if L<=5ms else -M_U；alpha=0.95, M_U=5
   eMBB:  y = 1 if (L<=100ms & r>=50Mbps)；y = r/50 if (L<=100ms & r<50Mbps)；else -M_E, M_E=3
-  mMTC:  y = (#接入且满足L<=500ms)/(#任务存在的mMTC总数)；若选择集合中任何一个超过500ms，可不选择该用户避免惩罚。
+  mMTC:  y = (#接入且满足L<=500ms)/(#任务存在的mMTC总数)
 
 实现要点：
 - 枚举(R_U, R_E, R_M)且满足R_U+R_E+R_M=50，且R_U%10==0, R_E%5==0, R_M%2==0以避免RB浪费。
-- 对每类在容量上限内选择子集，使得对应QoS贡献最大（URLLC/eMBB按个体QoS排序取前若干个正收益者；mMTC取满足SLA的前若干个）。
+- 对每类用户以并发容量 cap_s=R_s/v_s 进行最短完工时间的无抢占调度，计算等待 Q 与总时延 L=Q+T，继而按切片QoS定义计分并汇总。
 """
 
 from __future__ import annotations
@@ -47,6 +47,7 @@ CSV_RAY = os.path.join(ATTACH_DIR, "q1_小规模瑞丽衰减.csv")
 P_TX_DBM: float = 30.0
 B_HZ: float = 360_000.0  # 360 kHz
 NF_DB: float = 7.0
+T_WINDOW_MS: float = 100.0  # 决策周期（可排队服务窗口）
 
 V_U: int = 10
 V_E: int = 5
@@ -157,16 +158,13 @@ def delay_ms(user: User, num_rbs: int) -> float:
     return t_s * 1e3
 
 
-def urllc_qos(user: User, num_rbs: int) -> float:
-    L_ms = delay_ms(user, num_rbs)
+def urllc_qos_from_L(L_ms: float) -> float:
     if L_ms <= SLA_L_U_MS:
         return ALPHA ** L_ms
     return -M_U
 
 
-def embb_qos(user: User, num_rbs: int) -> float:
-    L_ms = delay_ms(user, num_rbs)
-    r_bps = user_rate_bps(user, num_rbs)
+def embb_qos_from_L_and_r(L_ms: float, r_bps: float) -> float:
     r_mbps = r_bps / 1e6
     if L_ms <= SLA_L_E_MS and r_mbps >= SLA_R_E_MBPS:
         return 1.0
@@ -175,9 +173,72 @@ def embb_qos(user: User, num_rbs: int) -> float:
     return -M_E
 
 
-def mm_tc_success(user: User, num_rbs: int) -> bool:
-    L_ms = delay_ms(user, num_rbs)
+def mm_tc_success_from_L(L_ms: float) -> bool:
     return L_ms <= SLA_L_M_MS
+
+
+def schedule_slice(users: List[User], num_rbs_slice: int, per_user_rbs: int) -> Dict[str, Dict[str, float]]:
+    """
+    在给定切片RB与每用户固定RB占用下，对该切片内所有用户进行同周期(100ms)内的串并行调度。
+    - 并发容量 cap = floor(num_rbs_slice / per_user_rbs)。
+    - 调度顺序：输入列表顺序（与数据列顺序/编号先后对齐）。
+    - 计算每个用户的开始时间、完成时间、等待 Q 与总时延 L=Q+T。
+    返回：name -> { 'Q_ms', 'T_ms', 'L_ms', 'r_bps' }。
+    """
+    import heapq
+
+    results: Dict[str, Dict[str, float]] = {}
+
+    # 并发容量
+    cap = num_rbs_slice // per_user_rbs if per_user_rbs > 0 else 0
+    if cap <= 0:
+        # 无法服务：用无穷大时延表示
+        for u in users:
+            r_bps = user_rate_bps(u, per_user_rbs) if per_user_rbs > 0 else 0.0
+            results[u.name] = {
+                "Q_ms": float("inf"),
+                "T_ms": delay_ms(u, per_user_rbs) if per_user_rbs > 0 else float("inf"),
+                "L_ms": float("inf"),
+                "r_bps": r_bps,
+            }
+        return results
+
+    # 小根堆：存放正在服务的会话的完成时刻
+    active_heap: List[Tuple[float, int]] = []  # (finish_time_ms, counter)
+    counter = 0
+
+    # 先填满并发槽位
+    idx = 0
+    n = len(users)
+    while idx < min(cap, n):
+        u = users[idx]
+        T_ms = delay_ms(u, per_user_rbs)
+        Q_ms = 0.0
+        L_ms = Q_ms + T_ms
+        r_bps = user_rate_bps(u, per_user_rbs)
+        results[u.name] = {"Q_ms": Q_ms, "T_ms": T_ms, "L_ms": L_ms, "r_bps": r_bps}
+        heapq.heappush(active_heap, (L_ms, counter))
+        counter += 1
+        idx += 1
+
+    # 其余用户按完成最早者释放后接续
+    while idx < n:
+        u = users[idx]
+        # 取出最早释放时间
+        earliest_finish, _ = heapq.heappop(active_heap)
+
+        T_ms = delay_ms(u, per_user_rbs)
+        start_ms = earliest_finish
+        Q_ms = start_ms
+        L_ms = Q_ms + T_ms
+        r_bps = user_rate_bps(u, per_user_rbs)
+        results[u.name] = {"Q_ms": Q_ms, "T_ms": T_ms, "L_ms": L_ms, "r_bps": r_bps}
+
+        heapq.heappush(active_heap, (L_ms, counter))
+        counter += 1
+        idx += 1
+
+    return results
 
 
 def choose_best_subset(values: List[Tuple[str, float]], k: int) -> List[str]:
@@ -210,29 +271,29 @@ def enumerate_solution(users: List[User]):
             if R_M % V_M != 0:
                 continue  # 避免RB浪费
 
-            cap_U = min(len(U), R_U // V_U)
-            cap_E = min(len(E), R_E // V_E)
-            cap_M = min(len(M), R_M // V_M)
+            # 在各切片内进行同周期调度，得到每个用户的 L 与 r
+            U_sched = schedule_slice(U, R_U, V_U)
+            E_sched = schedule_slice(E, R_E, V_E)
+            M_sched = schedule_slice(M, R_M, V_M)
 
-            # 逐个用户计算候选QoS
-            U_scores: List[Tuple[str, float]] = [(u.name, urllc_qos(u, V_U)) for u in U]
-            E_scores: List[Tuple[str, float]] = [(e.name, embb_qos(e, V_E)) for e in E]
+            # 计算 QoS
+            sum_U = 0.0
+            for u in U:
+                L_ms = U_sched[u.name]["L_ms"]
+                sum_U += urllc_qos_from_L(L_ms)
 
-            # mMTC：只统计满足SLA的用户用于接入
-            M_success: List[Tuple[str, bool]] = [(m.name, mm_tc_success(m, V_M)) for m in M]
-
-            sel_U = choose_best_subset(U_scores, cap_U)
-            sel_E = choose_best_subset(E_scores, cap_E)
-            # mMTC 选择：优先选择满足成功条件者
-            m_ok = [name for name, ok in M_success if ok]
-            sel_M = m_ok[:cap_M]
-
-            # 计算目标：sum(URLLC y)+sum(eMBB y)+ y^M
-            sum_U = sum(score for name, score in U_scores if name in sel_U)
-            sum_E = sum(score for name, score in E_scores if name in sel_E)
+            sum_E = 0.0
+            for e in E:
+                L_ms = E_sched[e.name]["L_ms"]
+                r_bps = E_sched[e.name]["r_bps"]
+                sum_E += embb_qos_from_L_and_r(L_ms, r_bps)
 
             denom_M = sum(1 for m in M if m.data_mbit > 0.0)
-            num_M = len(sel_M)
+            num_M = 0
+            for m in M:
+                L_ms = M_sched[m.name]["L_ms"]
+                if mm_tc_success_from_L(L_ms):
+                    num_M += 1
             y_M = (num_M / denom_M) if denom_M > 0 else 0.0
 
             obj = sum_U + sum_E + y_M
@@ -241,40 +302,46 @@ def enumerate_solution(users: List[User]):
                 # 保存详情
                 details = {}
                 for u in U:
-                    L_ms = delay_ms(u, V_U)
-                    r_mbps = user_rate_bps(u, V_U) / 1e6
+                    L_ms = U_sched[u.name]["L_ms"]
+                    Q_ms = U_sched[u.name]["Q_ms"]
+                    r_mbps = U_sched[u.name]["r_bps"] / 1e6
                     details[u.name] = {
-                        "selected": u.name in sel_U,
+                        "selected": True,
+                        "Q_ms": Q_ms,
                         "L_ms": L_ms,
                         "r_Mbps": r_mbps,
-                        "qos": urllc_qos(u, V_U),
+                        "qos": urllc_qos_from_L(L_ms),
                     }
                 for e in E:
-                    L_ms = delay_ms(e, V_E)
-                    r_mbps = user_rate_bps(e, V_E) / 1e6
+                    L_ms = E_sched[e.name]["L_ms"]
+                    Q_ms = E_sched[e.name]["Q_ms"]
+                    r_mbps = E_sched[e.name]["r_bps"] / 1e6
                     details[e.name] = {
-                        "selected": e.name in sel_E,
+                        "selected": True,
+                        "Q_ms": Q_ms,
                         "L_ms": L_ms,
                         "r_Mbps": r_mbps,
-                        "qos": embb_qos(e, V_E),
+                        "qos": embb_qos_from_L_and_r(L_ms, E_sched[e.name]["r_bps"]),
                     }
                 for m in M:
-                    L_ms = delay_ms(m, V_M)
-                    r_mbps = user_rate_bps(m, V_M) / 1e6
+                    L_ms = M_sched[m.name]["L_ms"]
+                    Q_ms = M_sched[m.name]["Q_ms"]
+                    r_mbps = M_sched[m.name]["r_bps"] / 1e6
                     details[m.name] = {
-                        "selected": m.name in sel_M,
+                        "selected": True,
+                        "Q_ms": Q_ms,
                         "L_ms": L_ms,
                         "r_Mbps": r_mbps,
-                        "success": mm_tc_success(m, V_M),
+                        "success": mm_tc_success_from_L(L_ms),
                     }
 
                 best.update(
                     {
                         "obj": obj,
                         "R": (R_U, R_E, R_M),
-                        "sel_U": sel_U,
-                        "sel_E": sel_E,
-                        "sel_M": sel_M,
+                        "sel_U": [u.name for u in U],
+                        "sel_E": [e.name for e in E],
+                        "sel_M": [m.name for m in M if mm_tc_success_from_L(M_sched[m.name]["L_ms"])],
                         "y_M": y_M,
                         "sum_U": sum_U,
                         "sum_E": sum_E,
