@@ -17,7 +17,8 @@
 - QoS：
   URLLC: y = alpha^L(ms) if L<=5ms else -M_U；alpha=0.95, M_U=5
   eMBB:  y = 1 if (L<=100ms & r>=50Mbps)；y = r/50 if (L<=100ms & r<50Mbps)；else -M_E, M_E=3
-  mMTC:  y = (#接入且满足L<=500ms)/(#任务存在的mMTC总数)
+  mMTC:  定义比例 ratio = (#接入且满足L<=500ms)/(#当期有任务的mMTC用户数)。对每个有任务的 m 用户：
+          y_k^m = ratio 若 L<=500ms，否则 y_k^m = -M_m；最终目标按 \sum_k y_k^m 累加。
 
 实现要点：
 - 枚举(R_U, R_E, R_M)且满足R_U+R_E+R_M=50，且R_U%10==0, R_E%5==0, R_M%2==0以避免RB浪费。
@@ -249,10 +250,22 @@ def choose_best_subset(values: List[Tuple[str, float]], k: int) -> List[str]:
 
 
 def enumerate_solution(users: List[User]):
-    # 按类别拆分
-    U = [u for u in users if u.category == "U"]
-    E = [u for u in users if u.category == "E"]
-    M = [u for u in users if u.category == "M"]
+    # 按类别拆分并显式排序：编号靠前优先
+    def sort_key(u: User):
+        prefix_rank = 0 if u.category == "U" else (1 if u.category == "E" else 2)
+        num = 0
+        for i in range(len(u.name)):
+            if u.name[i].isdigit():
+                try:
+                    num = int(u.name[i:])
+                except ValueError:
+                    num = 0
+                break
+        return (prefix_rank, num)
+
+    U = sorted([u for u in users if u.category == "U"], key=sort_key)
+    E = sorted([u for u in users if u.category == "E"], key=sort_key)
+    M = sorted([u for u in users if u.category == "M"], key=sort_key)
 
     best = {
         "obj": -1e18,
@@ -262,6 +275,7 @@ def enumerate_solution(users: List[User]):
         "sel_M": [],
         "details": {},
     }
+    enum_records: List[Dict[str, float]] = []
 
     for R_U in range(0, 51, V_U):  # 0,10,20,30,40,50
         for R_E in range(0, 51 - R_U, V_E):  # 0,5,10,...
@@ -288,15 +302,41 @@ def enumerate_solution(users: List[User]):
                 r_bps = E_sched[e.name]["r_bps"]
                 sum_E += embb_qos_from_L_and_r(L_ms, r_bps)
 
+            # mMTC：按 q1.tex 逐用户求和口径
             denom_M = sum(1 for m in M if m.data_mbit > 0.0)
-            num_M = 0
+            successes: Dict[str, bool] = {}
+            num_success = 0
             for m in M:
                 L_ms = M_sched[m.name]["L_ms"]
-                if mm_tc_success_from_L(L_ms):
-                    num_M += 1
-            y_M = (num_M / denom_M) if denom_M > 0 else 0.0
+                ok = mm_tc_success_from_L(L_ms)
+                successes[m.name] = ok
+                if ok and m.data_mbit > 0.0:
+                    num_success += 1
+            ratio = (num_success / denom_M) if denom_M > 0 else 0.0
+            sum_M = 0.0
+            for m in M:
+                if m.data_mbit <= 0.0:
+                    continue
+                if successes[m.name]:
+                    sum_M += ratio
+                else:
+                    sum_M += -M_M
+            y_M = sum_M
 
             obj = sum_U + sum_E + y_M
+
+            # 记录本次枚举结果
+            enum_records.append(
+                {
+                    "R_U": float(R_U),
+                    "R_E": float(R_E),
+                    "R_M": float(R_M),
+                    "sum_U": float(sum_U),
+                    "sum_E": float(sum_E),
+                    "sum_M": float(y_M),
+                    "obj": float(obj),
+                }
+            )
 
             if obj > best["obj"]:
                 # 保存详情
@@ -333,6 +373,7 @@ def enumerate_solution(users: List[User]):
                         "L_ms": L_ms,
                         "r_Mbps": r_mbps,
                         "success": mm_tc_success_from_L(L_ms),
+                        "qos": (ratio if (m.data_mbit > 0.0 and mm_tc_success_from_L(L_ms)) else (-M_M if m.data_mbit > 0.0 else 0.0)),
                     }
 
                 best.update(
@@ -349,12 +390,12 @@ def enumerate_solution(users: List[User]):
                     }
                 )
 
-    return best
+    return best, enum_records
 
 
 def main() -> None:
     users = build_users()
-    result = enumerate_solution(users)
+    result, enum_records = enumerate_solution(users)
 
     R_U, R_E, R_M = result["R"]
 
@@ -363,7 +404,7 @@ def main() -> None:
     print(f"URLLC接入: {result['sel_U']}")
     print(f"eMBB接入:  {result['sel_E']}")
     print(f"mMTC接入:  {result['sel_M']}")
-    print(f"mMTC比例:  y_M={result['y_M']:.4f}")
+    print(f"mMTC累计:  y_M={result['y_M']:.4f}")
     print(f"URLLC QoS合计: {result['sum_U']:.4f}")
     print(f"eMBB  QoS合计: {result['sum_E']:.4f}")
     print(f"目标函数: {result['obj']:.4f}")
@@ -384,6 +425,41 @@ def main() -> None:
             print(
                 f"{name:>4s}: sel={info['selected']}, L(ms)={info['L_ms']:.3f}, r(Mbps)={info['r_Mbps']:.3f}, success={info['success']}"
             )
+
+    # 并列最优方案列表
+    tol = 1e-9
+    best_obj_val = float(result["obj"])
+    best_rows = [rec for rec in enum_records if abs(rec["obj"] - best_obj_val) <= tol]
+    print()
+    print(f"并列最优方案（{len(best_rows)}个）:")
+    for rec in best_rows:
+        print(
+            f"  (R_U={int(rec['R_U'])}, R_e={int(rec['R_E'])}, R_m={int(rec['R_M'])}), "
+            f"∑U={rec['sum_U']:.4f}, ∑e={rec['sum_E']:.4f}, ∑m={rec['sum_M']:.4f}, Q={rec['obj']:.4f}"
+        )
+
+    # 导出全部枚举结果
+    out_csv = os.path.join(SCRIPT_DIR, "q1_enum_results.csv")
+    try:
+        with open(out_csv, "w", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerow(["R_U", "R_E", "R_M", "sum_URLLC", "sum_eMBB", "sum_mMTC", "obj"])
+            for rec in enum_records:
+                writer.writerow(
+                    [
+                        int(rec["R_U"]),
+                        int(rec["R_E"]),
+                        int(rec["R_M"]),
+                        f"{rec['sum_U']:.6f}",
+                        f"{rec['sum_E']:.6f}",
+                        f"{rec['sum_M']:.6f}",
+                        f"{rec['obj']:.6f}",
+                    ]
+                )
+        print()
+        print(f"已导出全部枚举结果 -> {out_csv}")
+    except Exception as e:
+        print(f"导出枚举结果失败: {e}")
 
 
 if __name__ == "__main__":

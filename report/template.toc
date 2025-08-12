@@ -7,10 +7,12 @@
 \contentsline {section}{\numberline {4 \ }问题一的模型的建立和求解}{5}{section.4}%
 \contentsline {subsection}{\numberline {4.1}问题一的描述与分析}{5}{subsection.4.1}%
 \contentsline {subsection}{\numberline {4.2}预备工作}{5}{subsection.4.2}%
+\contentsline {subsubsection}{\numberline {4.2.1}关键参数补充}{5}{subsubsection.4.2.1}%
 \contentsline {subsection}{\numberline {4.3}模型建立}{5}{subsection.4.3}%
 \contentsline {subsubsection}{\numberline {4.3.1}传输速率计算}{5}{subsubsection.4.3.1}%
-\contentsline {subsubsection}{\numberline {4.3.2}服务质量评估函数}{6}{subsubsection.4.3.2}%
-\contentsline {subsubsection}{\numberline {4.3.3}优化模型}{7}{subsubsection.4.3.3}%
+\contentsline {subsubsection}{\numberline {4.3.2}时延计算模型}{6}{subsubsection.4.3.2}%
+\contentsline {subsubsection}{\numberline {4.3.3}服务质量评估函数}{6}{subsubsection.4.3.3}%
+\contentsline {subsubsection}{\numberline {4.3.4}优化模型}{7}{subsubsection.4.3.4}%
 \contentsline {subsection}{\numberline {4.4}模型求解}{7}{subsection.4.4}%
 \contentsline {subsection}{\numberline {4.5}求解结果}{8}{subsection.4.5}%
 \contentsline {section}{\numberline {5 \ }问题二的模型的建立和求解}{9}{section.5}%
