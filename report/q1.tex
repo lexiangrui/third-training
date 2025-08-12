@@ -1,16 +1,151 @@
 \section{问题一的模型的建立和求解}
 \subsection{问题一的描述与分析}
 
-\subsection{预备工作}
+问题一考虑单个微基站的资源分配场景。该基站拥有50个资源块（Resource Block, RB），需要为三类网络切片——URLLC（高可靠低时延）、eMBB（增强移动宽带）和mMTC（大规模机器通信）进行资源分配，以最大化用户服务质量。这是一个静态资源分配优化问题，需要在满足资源约束的条件下，找到最优的资源块分配方案。
 
+\subsection{预备工作}
+为便于复现与对比，本问采用如下统一的数据、参数与约定：
+
+\begin{itemize}
+  \item 数据来源（附件1，单时刻数据）：任务量 \texttt{q1\_任务流.csv}（单位：Mbit）、大规模衰减 \texttt{q1\_大规模衰减.csv}（单位：dB）、小规模瑞利衰减 \texttt{q1\_小规模瑞丽衰减.csv}（幅度 $|h|$）。按列名一一对应同名用户，忽略非数值列（如 \texttt{Time}）。
+  \item 系统与物理层参数：单小区、无同频干扰；发射功率 $p_{\mathrm{tx}}=30\,\mathrm{dBm}$；单RB带宽 $b=360\,\mathrm{kHz}$；噪声系数 $NF=7\,\mathrm{dB}$。白噪声按如下公式计算：
+  \begin{equation}
+    N_0\,(\mathrm{dBm}) = -174 + 10\log_{10}(i\,b) + NF
+  \end{equation}
+  并换算为mW。仅考虑传输时延，单时刻下排队时延取 $Q_k=0$。
+  \item 资源占用粒度（同表1）：URLLC/eMBB/mMTC 用户并发占用RB数分别为 $v_U=10$、$v_e=5$、$v_m=2$。为避免RB碎片化，约束切片RB分配满足 $n_U\bmod 10=0$、$n_e\bmod 5=0$、$n_m\bmod 2=0$，且 $n_U+n_e+n_m=50$。
+  \item SLA与QoS：URLLC 时延SLA $L_U^{\mathrm{SLA}}=5\,\mathrm{ms}$、折扣因子 $\alpha=0.95$、惩罚 $M_U=5$；eMBB 速率SLA $r_e^{\mathrm{SLA}}=50\,\mathrm{Mbps}$、时延SLA $L_e^{\mathrm{SLA}}=100\,\mathrm{ms}$、惩罚 $M_e=3$；mMTC 时延SLA $L_m^{\mathrm{SLA}}=500\,\mathrm{ms}$、惩罚 $M_m=1$。
+  \item 评估口径：URLLC/eMBB 以用户级QoS加和；mMTC 以满足SLA的接入比例计分（当期存在任务的mMTC用户数作分母）。
+\end{itemize}
 \subsection{模型建立}
 
+\subsubsection{传输速率计算}
+
+根据附录中的信号传输模型，用户$k$获得$i_k$个资源块时的接收功率为：
+
+\begin{equation}
+p_{\text{rx},k} = 10^{\frac{p_{\text{tx}} - \phi_k}{10}} \cdot |h_k|^2 \quad \text{(mW)}
+\end{equation}
+其中，$p_{\text{tx}}$为基站发射功率（dBm），$\phi_k$为大规模衰减（dB），$h_k$为小规模瑞利衰落系数，$p_{\text{rx},k}$为接收功率（mW）。
+
+考虑噪声功率的影响，噪声功率谱密度为：
+
+\begin{equation}
+N_0 = -174 + 10\log_{10}(i_k \cdot b) + 7 \quad \text{(dBm)}
+\end{equation}
+其中，$i_k$为用户$k$占用的RB数量，$b$为单RB带宽（Hz），$-174$ dBm/Hz为热噪声谱密度，$7$ dB为噪声系数。
+
+信干噪比（SINR）在无干扰情况下简化为信噪比（SNR）：
+
+\begin{equation}
+\gamma_k = \frac{p_{\text{rx},k}}{10^{\frac{N_0}{10}}}
+\end{equation}
+其中，$N_0$以dBm计，$10^{\frac{N_0}{10}}$为噪声功率（mW）。
+
+根据香农公式，用户$k$的传输速率为：
+
+\begin{equation}
+r_k = i_k \cdot b \cdot \log_2(1 + \gamma_k) \quad \text{(bps)}
+\end{equation}
+其中，$r_k$为传输速率（bps），$i_k$为RB数量，$b$为单RB带宽。
+
+\subsubsection{服务质量评估函数}
+
+根据附录中的用户服务质量定义，不同切片的QoS评估函数如下：
+
+\textbf{(1) U切片（URLLC）}
+
+用户$k$的传输时延为：
+\begin{equation}
+T_k = \frac{D_k \times 10^6}{r_k} \quad \text{(s)}
+\end{equation}
+总时延为：
+\begin{equation}
+L_k^{s} = Q_k + T_k, \quad s \in \{U, e, m\}
+\end{equation}
+其中，$D_k$为任务数据量（Mbit），$Q_k$为排队时延，$T_k$为传输时延。
+
+服务质量函数为：
+\begin{equation}
+y_k^{U} = \begin{cases}
+\alpha^{L_k^{U}} & \text{若 } L_k^{U} \leq L_{U}^{\text{SLA}} \\
+-M_{U} & \text{若 } L_k^{U} > L_{U}^{\text{SLA}}
+\end{cases}
+\end{equation}
+其中，$\alpha\in(0,1)$为效益折扣系数（本题取$\alpha=0.95$），$M_U$为U切片任务丢失惩罚系数，$L_U^{\text{SLA}}$为U切片时延SLA。
+
+\textbf{(2) e切片（eMBB）}
+
+e切片用户采用三段式QoS函数：
+\begin{equation}
+y_k^{e} = \begin{cases}
+1 & \text{若 } r_k \geq r_{e}^{\text{SLA}} \text{ 且 } L_k^{e} \leq L_{e}^{\text{SLA}} \\
+\frac{r_k}{r_{e}^{\text{SLA}}} & \text{若 } r_k < r_{e}^{\text{SLA}} \text{ 且 } L_k^{e} \leq L_{e}^{\text{SLA}} \\
+-M_{e} & \text{若 } L_k^{e} > L_{e}^{\text{SLA}}
+\end{cases}
+\end{equation}
+其中，$r_e^{\text{SLA}}$、$L_e^{\text{SLA}}$分别为e切片的速率与时延SLA，$M_e$为惩罚系数。
+
+\textbf{(3) m切片（mMTC）}
+
+m切片的QoS基于接入成功率（满足时延SLA时按接入比例计分）：
+\begin{equation}
+y_k^{m} = \begin{cases}
+\frac{\sum_{i \in \mathcal{U}_{m}} c_i'}{\sum_{i \in \mathcal{U}_{m}} c_i} & \text{若 } L_k^{m} \le L_{m}^{\text{SLA}} \\
+-M_{m} & \text{若 } L_k^{m} > L_{m}^{\text{SLA}}
+\end{cases}
+\end{equation}
+其中，$\mathcal{U}_m$为m切片用户集合，$c_i$表示是否有任务需求，$c_i'$表示是否成功接入，$L_k^{m}$为用户$k$的总时延（同上定义），$M_m$为惩罚系数。
+
+\subsubsection{优化模型}
+
+基于上述分析，建立如下优化模型：
+
+\begin{equation}
+\begin{aligned}
+\max_{n_U, n_e, n_m} \quad & Q = \sum_{s \in \mathcal{S}} \sum_{k \in \mathcal{U}_s} y_k^s \\
+\text{s.t.} \quad & \begin{cases}
+ n_U + n_e + n_m \leq N \\
+ n_s \geq 0, \quad \forall s \in \mathcal{S} \\
+ n_s \in \mathbb{Z}, \quad \forall s \in \mathcal{S}
+ \end{cases}
+ \end{aligned}
+ \end{equation}
+其中，$n_U, n_e, n_m$分别为分配给U、e、m切片的RB个数，$\mathcal{S}=\{U,e,m\}$，$\mathcal{U}_s$为切片$s$的用户集合；$y_k^{U}$、$y_k^{e}$为用户级QoS得分，$y^{m}$为m切片的聚合式接入比例得分。
+
+其中，第一个约束为资源块总数限制，第二个约束为非负约束，第三个约束为整数约束。
 \subsection{模型求解}
+为求解最优切片RB分配与接入选择，采用离散枚举结合贪心选择的求解流程：
 
-\textbf{Step1：} 
+\begin{enumerate}
+  \item 切片RB枚举：枚举 $R_U\in\{0,10,\dots,50\}$、$R_e\in\{0,5,\dots,50-R_U\}$，令 $R_m=50-R_U-R_e$，若 $R_m<0$ 或 $R_m\bmod 2\ne 0$ 则跳过。并发可接入上限为 $\mathrm{cap}_U=\lfloor R_U/10\rfloor$、$\mathrm{cap}_e=\lfloor R_e/5\rfloor$、$\mathrm{cap}_m=\lfloor R_m/2\rfloor$。
+  \item 指标计算：对每个用户按其所属切片以固定并发RB数 $v_s\in\{10,5,2\}$ 计算
+  \[
+    r_k = v_s\,b\,\log_2\bigl(1+\gamma_k\bigr),\quad T_k=\frac{D_k\cdot10^6}{r_k},\quad L_k=T_k \ (Q_k=0)
+  \]
+  并据式(\ref{ })中各切片QoS定义得到 $y_k^s$（URLLC：$\alpha^{L_k}$；eMBB：分段函数；mMTC：是否满足时延SLA）。
+  \item 接入选择：
+  \begin{itemize}
+    \item URLLC/eMBB：过滤 $y_k^s\!>\!0$ 的用户，按 $y_k^s$ 从高到低取不超过 $\mathrm{cap}_s$ 个；
+    \item mMTC：筛选满足 $L_k\le L_m^{\mathrm{SLA}}$ 的用户，并按“编号靠前优先”的统一顺序取不超过 $\mathrm{cap}_m$ 个（与题目处理顺序一致）。
+  \end{itemize}
+  \item 目标计算：
+  \[
+    Q(R_U,R_e,R_m)=\sum_{k\in\mathcal U_U} y_k^U + \sum_{k\in\mathcal U_e} y_k^e + \underbrace{\frac{\#\,\text{mMTC已接入}}{\#\,\text{当期有任务的mMTC}}}_{y^{m}}
+  \]
+  记录达到最大 $Q$ 的分配与接入集合及其关键指标。
+\end{enumerate}
 
-\textbf{Step2：} 
-
-\textbf{Step3：} 
+该方法的搜索空间规模仅为 $\mathcal O(\frac{50}{10}\cdot\frac{50}{5})$ 量级的枚举，配以线性时间的用户评分与选择，整体复杂度低且可完全遍历，能够找到全局最优的离散解；同时满足题目给定的“资源块相邻”“编号靠前优先”等实现约束。
 
 \subsection{求解结果}
+
+基于附件1数据与上述流程，得到的最优分配与接入如下（发射功率固定为 $30\,\mathrm{dBm}$）：
+
+\begin{itemize}
+  \item 最优切片RB分配：$R_U=20,\ R_e=20,\ R_m=10$（合计50）。
+  \item 接入选择：URLLC 接入 \{U2, U1\}；eMBB 接入 \{e1, e2, e4, e3\}；mMTC 接入 \{m1, m2, m3, m4, m5\}。
+  \item 关键指标：mMTC 接入比例 $y^{m}=0.5000$；URLLC QoS 合计 $\sum y^{U}=1.9870$；eMBB QoS 合计 $\sum y^{e}=3.7953$；目标函数 $Q=6.2823$。
+\end{itemize}
+
+说明：所有被接入的URLLC与mMTC任务均满足各自时延SLA；eMBB中 \texttt{e3} 的瞬时速率低于 $50\,\mathrm{Mbps}$，按 $r/r_e^{\mathrm{SLA}}$ 计分（约 $0.7953$），其余 eMBB 用户达到满分；该组合在保证URLLC低时延与较高eMBB速率的同时，实现了mMTC一半终端的及时接入，从而使总体服务质量达到最大。

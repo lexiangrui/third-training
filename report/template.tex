@@ -70,20 +70,32 @@
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-
 \section{符号说明}
+
+
 \begin{table}[H]
 \centering
-\begin{tabularx}{\textwidth}{CLC}
-\toprule
-符号    & 说明    & 单位 \\
-\midrule
-$m     $& 质量 & $kg$ \\
-$V     $& 体积 & $m^3$ \\
-\bottomrule
-\end{tabularx}
-\label{tab:符号说明}
+\begin{tabular}{cl}
+\hline
+符号 & 含义 \\
+\hline
+$N$ & 资源块总数，$N = 50$ \\
+$\mathcal{S}$ & 切片集合，$\mathcal{S} = \{U, e, m\}$（分别代表URLLC、eMBB、mMTC） \\
+$\mathcal{U}_s$ & 切片$s$的用户集合 \\
+$n_s$ & 分配给切片$s$的资源块数量 \\
+$D_k$ & 用户$k$的任务数据量（Mbit） \\
+$\phi_{k}$ & 用户$k$的大规模衰减（dB） \\
+$h_{k}$ & 用户$k$的小规模瑞利衰减系数 \\
+$p_{\text{tx}}$ & 基站发射功率，$p_{\text{tx}} = 30$ dBm \\
+$b$ & 单个资源块带宽，$b = 360$ kHz \\
+$L_s^{\text{SLA}}$ & 切片$s$的时延SLA要求 \\
+$r_s^{\text{SLA}}$ & 切片$s$的速率SLA要求 \\
+$M_s$ & 切片$s$的任务丢失惩罚系数 \\
+$\alpha$ & URLLC切片的效益折扣系数 \\
+\hline
+\end{tabular}
 \end{table}
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
@@ -143,14 +155,7 @@ q4.cpp & 问题四程序代码 \\
 \end{table}
 
 \section{代码}
-\noindent q1.m
-\lstinputlisting[language=matlab]{code/q1.m}
-q2.py
-\lstinputlisting[language=python]{code/q2.py}
-q3.c
-\lstinputlisting[language=c]{code/q3.c}
-q4.cpp
-\lstinputlisting[language=c++]{code/q4.cpp}
+
 \end{appendices}
 \end{document}
 
