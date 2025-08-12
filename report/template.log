@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.5.19)  12 AUG 2025 20:50
+=======
+This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2024.10.22)  12 AUG 2025 20:58
+>>>>>>> df6444a385a2ced7f45695ffd902d3dd0046cff2
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1096,6 +1100,7 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 \tf@toc=\write6
 \openout6 = `template.toc'.
 
+<<<<<<< HEAD
 
 
 [3]
@@ -1132,6 +1137,18 @@ Overfull \hbox (9.44376pt too wide) in paragraph at lines 11--12
 
 
 [9]
+=======
+ [3] (./q1.tex [4]
+LaTeX Font Info:    Calculating math sizes for size <12.05> on input line 9.
+ [5] [6] [7]
+
+LaTeX Font Warning: Font shape `TU/STSong(1)/b/n' undefined
+(Font)              using `TU/STSong(1)/m/n' instead on input line 163.
+
+[8]) (./q2.tex) (./q3.tex [9])
+No file template.bbl.
+[10]
+>>>>>>> df6444a385a2ced7f45695ffd902d3dd0046cff2
 
 [10]
 
@@ -1146,17 +1163,22 @@ No file template.bbl.
 Package caption Warning: Unused \captionsetup[sub] on input line 11.
 See the caption package documentation for explanation.
 
+<<<<<<< HEAD
 
 
 [14] (./template.aux)
+=======
+[11] (./template.aux)
+>>>>>>> df6444a385a2ced7f45695ffd902d3dd0046cff2
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2022/08/05>
  ***********
 
 
-LaTeX Warning: There were undefined references.
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
+<<<<<<< HEAD
 Package rerunfilecheck Info: File `template.out' has not changed.
 (rerunfilecheck)             Checksum: 9D175DF84D4680FE4351E8CF0798BC0F;5189.
  ) 
@@ -1170,3 +1192,24 @@ Here is how much of TeX's memory you used:
  108i,13n,125p,472b,484s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
 Output written on template.pdf (14 pages).
+=======
+
+Package rerunfilecheck Warning: File `template.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `template.out':
+(rerunfilecheck)             Before: 77980DF15A2BD3EBC994F1037C17EF51;4477
+(rerunfilecheck)             After:  BFEB591E8A22D046C00944E0D5769EBC;4625.
+ ) 
+Here is how much of TeX's memory you used:
+ 34333 strings out of 474773
+ 724332 string characters out of 5757723
+ 1942839 words of memory out of 5000000
+ 55826 multiletter control sequences out of 15000+600000
+ 579614 words of font info for 183 fonts, out of 8000000 for 9000
+ 1348 hyphenation exceptions out of 8191
+ 108i,13n,114p,472b,560s stack positions out of 10000i,1000n,20000p,200000b,200000s
+
+Output written on template.pdf (11 pages).
+>>>>>>> df6444a385a2ced7f45695ffd902d3dd0046cff2

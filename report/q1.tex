@@ -4,19 +4,21 @@
 问题一考虑单个微基站的资源分配场景。该基站拥有50个资源块（Resource Block, RB），需要为三类网络切片——URLLC（高可靠低时延）、eMBB（增强移动宽带）和mMTC（大规模机器通信）进行资源分配，以最大化用户服务质量。这是一个静态资源分配优化问题，需要在满足资源约束的条件下，找到最优的资源块分配方案。
 
 \subsection{预备工作}
-为便于复现与对比，本问采用如下统一的数据、参数与约定：
+\subsubsection{关键参数补充}
 
-\begin{itemize}
-  \item 数据来源（附件1，单时刻数据）：任务量 \texttt{q1\_任务流.csv}（单位：Mbit）、大规模衰减 \texttt{q1\_大规模衰减.csv}（单位：dB）、小规模瑞利衰减 \texttt{q1\_小规模瑞丽衰减.csv}（幅度 $|h|$）。按列名一一对应同名用户，忽略非数值列（如 \texttt{Time}）。
-  \item 系统与物理层参数：单小区、无同频干扰；发射功率 $p_{\mathrm{tx}}=30\,\mathrm{dBm}$；单RB带宽 $b=360\,\mathrm{kHz}$；噪声系数 $NF=7\,\mathrm{dB}$。白噪声按如下公式计算：
-  \begin{equation}
-    N_0\,(\mathrm{dBm}) = -174 + 10\log_{10}(i\,b) + NF
-  \end{equation}
-  并换算为mW。仅考虑传输时延，单时刻下排队时延取 $Q_k=0$。
-  \item 资源占用粒度（同表1）：URLLC/eMBB/mMTC 用户并发占用RB数分别为 $v_U=10$、$v_e=5$、$v_m=2$。为避免RB碎片化，约束切片RB分配满足 $n_U\bmod 10=0$、$n_e\bmod 5=0$、$n_m\bmod 2=0$，且 $n_U+n_e+n_m=50$。
-  \item SLA与QoS：URLLC 时延SLA $L_U^{\mathrm{SLA}}=5\,\mathrm{ms}$、折扣因子 $\alpha=0.95$、惩罚 $M_U=5$；eMBB 速率SLA $r_e^{\mathrm{SLA}}=50\,\mathrm{Mbps}$、时延SLA $L_e^{\mathrm{SLA}}=100\,\mathrm{ms}$、惩罚 $M_e=3$；mMTC 时延SLA $L_m^{\mathrm{SLA}}=500\,\mathrm{ms}$、惩罚 $M_m=1$。
-  \item 评估口径：URLLC/eMBB 以用户级QoS加和；mMTC 以满足SLA的接入比例计分（当期存在任务的mMTC用户数作分母）。
-\end{itemize}
+\textbf{基站与信号参数}：基站发射功率 $p_{\text{tx}} = 30$ dBm，单个资源块（RB）带宽 $b = 360$ kHz，噪声系数 $NF = 7$ dB。
+
+\textbf{决策周期}：系统每 $T_{\text{window}} = 100$ ms进行一次资源分配决策。
+
+\textbf{切片资源占用与服务等级协议（SLA）}：URLLC切片：每个用户占用10个资源块，要求时延 $L_k^U \leq 5$ ms，速率 $r_k \geq 10$ Mbps；
+eMBB切片：每个用户占用5个资源块，要求时延 $L_k^e \leq 100$ ms 且传输速率 $r_k \geq 50$ Mbps；
+mMTC切片：每个用户占用2个资源块，要求时延 $L_k^m \leq 500$ ms，速率 $r_k \geq 1$ Mbps。
+
+
+\textbf{QoS评估参数}：U切片的效益折扣系数 $\alpha = 0.95$，任务丢失惩罚 $M_U = 5$；e切片的任务丢失惩罚 $M_e = 3$；m切片的任务丢失惩罚 $M_m = 1$。
+
+
+
 \subsection{模型建立}
 
 \subsubsection{传输速率计算}
@@ -49,21 +51,26 @@ r_k = i_k \cdot b \cdot \log_2(1 + \gamma_k) \quad \text{(bps)}
 \end{equation}
 其中，$r_k$为传输速率（bps），$i_k$为RB数量，$b$为单RB带宽。
 
-\subsubsection{服务质量评估函数}
+\subsubsection{时延计算模型}
+根据附录中描述的用户任务服务流程，用户的总时延由排队时延和传输时延两部分构成。
 
-根据附录中的用户服务质量定义，不同切片的QoS评估函数如下：
-
-\textbf{(1) U切片（URLLC）}
-
-用户$k$的传输时延为：
+用户$k$的传输时延$T_k$为完成其任务数据量$D_k$所需的传输时间，计算公式为：
 \begin{equation}
 T_k = \frac{D_k \times 10^6}{r_k} \quad \text{(s)}
 \end{equation}
-总时延为：
+其中，$D_k$为任务数据量（Mbit），$r_k$为用户的传输速率（bps）。
+
+用户的总时延$L_k^s$为排队时延$Q_k$与传输时延$T_k$之和：
 \begin{equation}
 L_k^{s} = Q_k + T_k, \quad s \in \{U, e, m\}
 \end{equation}
-其中，$D_k$为任务数据量（Mbit），$Q_k$为排队时延，$T_k$为传输时延。
+其中，$Q_k$是在调度过程中产生的等待时间。
+
+\subsubsection{服务质量评估函数}
+
+根据附录中的用户服务质量定义，并结合计算出的总时延，不同切片的QoS评估函数如下：
+
+\textbf{(1) U切片（URLLC）}
 
 服务质量函数为：
 \begin{equation}
@@ -115,37 +122,65 @@ y_k^{m} = \begin{cases}
 
 其中，第一个约束为资源块总数限制，第二个约束为非负约束，第三个约束为整数约束。
 \subsection{模型求解}
-为求解最优切片RB分配与接入选择，采用离散枚举结合贪心选择的求解流程：
 
-\begin{enumerate}
-  \item 切片RB枚举：枚举 $R_U\in\{0,10,\dots,50\}$、$R_e\in\{0,5,\dots,50-R_U\}$，令 $R_m=50-R_U-R_e$，若 $R_m<0$ 或 $R_m\bmod 2\ne 0$ 则跳过。并发可接入上限为 $\mathrm{cap}_U=\lfloor R_U/10\rfloor$、$\mathrm{cap}_e=\lfloor R_e/5\rfloor$、$\mathrm{cap}_m=\lfloor R_m/2\rfloor$。
-  \item 指标计算：对每个用户按其所属切片以固定并发RB数 $v_s\in\{10,5,2\}$ 计算
-  \[
-    r_k = v_s\,b\,\log_2\bigl(1+\gamma_k\bigr),\quad T_k=\frac{D_k\cdot10^6}{r_k},\quad L_k=T_k \ (Q_k=0)
-  \]
-  并据式(\ref{ })中各切片QoS定义得到 $y_k^s$（URLLC：$\alpha^{L_k}$；eMBB：分段函数；mMTC：是否满足时延SLA）。
-  \item 接入选择：
-  \begin{itemize}
-    \item URLLC/eMBB：过滤 $y_k^s\!>\!0$ 的用户，按 $y_k^s$ 从高到低取不超过 $\mathrm{cap}_s$ 个；
-    \item mMTC：筛选满足 $L_k\le L_m^{\mathrm{SLA}}$ 的用户，并按“编号靠前优先”的统一顺序取不超过 $\mathrm{cap}_m$ 个（与题目处理顺序一致）。
-  \end{itemize}
-  \item 目标计算：
-  \[
-    Q(R_U,R_e,R_m)=\sum_{k\in\mathcal U_U} y_k^U + \sum_{k\in\mathcal U_e} y_k^e + \underbrace{\frac{\#\,\text{mMTC已接入}}{\#\,\text{当期有任务的mMTC}}}_{y^{m}}
-  \]
-  记录达到最大 $Q$ 的分配与接入集合及其关键指标。
-\end{enumerate}
+该优化问题属于整数规划问题，考虑到总资源块数量有限（$N=50$），且各切片用户占用RB数量固定，使得分配给各切片的RB数量 $n_s$ 的可行组合是有限的。因此，我们采用枚举法结合调度仿真的策略进行求解，以确保找到全局最优解。算法流程如下：
 
-该方法的搜索空间规模仅为 $\mathcal O(\frac{50}{10}\cdot\frac{50}{5})$ 量级的枚举，配以线性时间的用户评分与选择，整体复杂度低且可完全遍历，能够找到全局最优的离散解；同时满足题目给定的“资源块相邻”“编号靠前优先”等实现约束。
+\textbf{Step1：生成RB分配方案}
 
-\subsection{求解结果}
-
-基于附件1数据与上述流程，得到的最优分配与接入如下（发射功率固定为 $30\,\mathrm{dBm}$）：
-
+我们枚举所有满足约束条件的RB分配方案 $(n_U, n_e, n_m)$。为避免资源浪费，分配给各切片的RB数量应为其用户占用量的整数倍。具体地：
 \begin{itemize}
-  \item 最优切片RB分配：$R_U=20,\ R_e=20,\ R_m=10$（合计50）。
-  \item 接入选择：URLLC 接入 \{U2, U1\}；eMBB 接入 \{e1, e2, e4, e3\}；mMTC 接入 \{m1, m2, m3, m4, m5\}。
-  \item 关键指标：mMTC 接入比例 $y^{m}=0.5000$；URLLC QoS 合计 $\sum y^{U}=1.9870$；eMBB QoS 合计 $\sum y^{e}=3.7953$；目标函数 $Q=6.2823$。
+    \item $n_U$ 在 $\{0, 10, 20, \dots, 50\}$ 中取值。
+    \item $n_e$ 在 $\{0, 5, 10, \dots, 50 - n_U\}$ 中取值。
+    \item $n_m = 50 - n_U - n_e$，并检验 $n_m$ 是否为2的倍数。若否则舍弃该方案。
 \end{itemize}
 
-说明：所有被接入的URLLC与mMTC任务均满足各自时延SLA；eMBB中 \texttt{e3} 的瞬时速率低于 $50\,\mathrm{Mbps}$，按 $r/r_e^{\mathrm{SLA}}$ 计分（约 $0.7953$），其余 eMBB 用户达到满分；该组合在保证URLLC低时延与较高eMBB速率的同时，实现了mMTC一半终端的及时接入，从而使总体服务质量达到最大。
+\textbf{Step2：切片内调度与性能计算}
+
+对于每一个有效的RB分配方案，我们在各切片内部独立进行调度仿真，以计算每个用户的性能指标。
+\begin{itemize}
+    \item \textbf{并发容量计算}：对于切片 $s \in \{U, e, m\}$，其并发服务能力为 $C_s = \lfloor n_s / v_s \rfloor$。
+    \item \textbf{串并行调度}：在100ms决策周期内，我们采用一种串并行的服务策略。初始时，将前 $C_s$ 个用户（按用户编号排序）分配至并发信道进行传输。当某个用户完成传输后，其占用的信道立即释放，并分配给队列中的下一个用户。
+    \item \textbf{性能计算}：通过该调度过程，我们可以计算出每个用户 $k$ 的传输时延 $T_k$ 和等待时延 $Q_k$，从而得到总时延 $L_k = Q_k + T_k$。用户的传输速率 $r_k$ 也一并计算得出。
+\end{itemize}
+
+\textbf{Step3：服务质量评估}
+
+根据步骤2计算出的性能指标 $(L_k, r_k)$，我们依据模型中定义的服务质量评估函数计算每个用户的QoS得分 $y_k^s$，并汇总得到当前RB分配方案下的总服务质量 $Q = \sum y_k^s$。
+
+\textbf{Step4：寻找最优方案}
+
+遍历所有RB分配方案后，总服务质量 $Q$ 最高的方案即为问题的最优解。我们记录下最优方案对应的 $(n_U, n_e, n_m)$ 组合、各用户的详细性能指标以及最终的总QoS值。
+
+\subsection{求解结果}
+通过执行上述算法，我们得到的最优资源分配方案及对应的性能指标如下：
+
+\textbf{最优资源分配方案}
+
+经枚举计算，我们找到了3个并列的最优资源分配方案，它们均能使系统总服务质量达到最大值15.7823。这三个方案的具体RB分配如下表所示。
+
+\begin{table}[H]
+\centering
+\caption{并列最优资源分配方案}
+\label{tab:q1_best_solutions}
+\begin{tabular}{cccccc}
+\hline
+\textbf{方案} & \textbf{URLLC RB数 ($n_U$)} & \textbf{eMBB RB数 ($n_e$)} & \textbf{mMTC RB数 ($n_m$)} & \textbf{总QoS} \\
+\hline
+1 & 20 & 10 & 20 & 15.7823 \\
+2 & 20 & 20 & 10 & 15.7823 \\
+3 & 30 & 10 & 10 & 15.7823 \\
+\hline
+\end{tabular}
+\end{table}
+
+在以上所有方案中，各切片获得的QoS合计分数均相同，分别为：URLLC QoS合计1.9870，eMBB QoS合计3.7953，mMTC QoS合计10.0000。
+
+\textbf{结果分析}
+
+\begin{itemize}
+    \item \textbf{最优性分析}：计算结果显示，存在三个不同的RB分配方案能够达到相同的最优目标函数值15.7823，如上表\ref{tab:q1_best_solutions}所示。这些方案的共同点在于，它们为URLLC、eMBB和mMTC切片带来的QoS贡献是完全相同的。这表明在当前用户任务和信道条件下，只要分配给U切片、eMBB切片和mMTC切片的RB数量分别不低于20、10和10个，就能保证所有用户达到最佳的服务水平。这种现象说明资源配置具有一定的灵活性和鲁棒性。
+    \item \textbf{用户性能详情}：在任何一个最优方案下，各用户的性能指标均相同。所有URLLC用户的时延均远低于5ms的SLA要求（如U1为0.145ms，U2为0.110ms），QoS得分接近1。eMBB用户中，e1, e2, e4满足速率与时延双重标准，QoS为1；e3用户速率未达标（39.77 Mbps < 50 Mbps），但仍在SLA时延内，获得了比例得分0.7953。所有mMTC用户均在极低时延下完成传输（均小于1ms），远优于500ms的SLA标准，因此获得了满分。
+    \item \textbf{资源效率与选择}：这三个方案均实现了资源的高效利用。在实际部署中，可以根据网络运营商的偏好进行选择。例如，方案1（20, 10, 20）为mMTC分配了最多的资源，适合未来mMTC连接数可能增加的场景；方案2（20, 20, 10）则向eMBB倾斜，适合视频流量大的场景；方案3（30, 10, 10）则最优先保障URLLC业务。这些方案共同构成了问题的最优解集。
+\end{itemize}
+
+综上所述，我们提出的资源分配方案能够有效满足各类切片用户的服务需求，实现了系统整体服务质量的最优。
