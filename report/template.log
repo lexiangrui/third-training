@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2024.10.22)  13 AUG 2025 14:20
-=======
-This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.5.19)  13 AUG 2025 15:41
->>>>>>> origin/Zml
+This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.5.19)  13 AUG 2025 20:57
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1100,36 +1096,20 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 \tf@toc=\write6
 \openout6 = `template.toc'.
 
-<<<<<<< HEAD
- [3] [4]
-Overfull \hbox (5.72171pt too wide) in paragraph at lines 49--50
-[]\TU/STSong(0)/b/n/12.05 问 题 一：|  \TU/STSong(0)/m/n/12.05 针 对 单 个 微 基 站 和 单 一 用 户 任 务 的 场 景，|  研 究 如 何 将 有 限 的 资 源 块 在 \TU/TimesNewRoman(0)/m/n/12.05 URLLC\TU/STSong(0)/m/n/12.05 、|
- []
-
-[5] (./q1.tex
-LaTeX Font Info:    Calculating math sizes for size <12.05> on input line 9.
- [6] [7] [8] [9]
-=======
 
 
 [3]
+
+[4]
 Overfull \hbox (5.09286pt too wide) in paragraph at lines 49--50
 []\TU/SimSun(0)/b/n/12.05 问 题 一：|  \TU/SimSun(0)/m/n/12.05 针 对 单 个 微 基 站 和 单 一 用 户 任 务 的 场 景，|  研 究 如 何 将 有 限 的 资 源 块 在 \TU/TimesNewRoman(0)/m/n/12.05 URLLC\TU/SimSun(0)/m/n/12.05 、|
  []
 
 
 
-[4] (./q1.tex
+[5] (./q1.tex
 LaTeX Font Info:    Calculating math sizes for size <12.05> on input line 9.
->>>>>>> origin/Zml
 
-
-<<<<<<< HEAD
-[10]) (./q2.tex [11] [12] [13] [14] [15]) (./q3.tex [16] [17] [18] [19]) (./q4.tex [20] [21] [22] [23]) [24]
-No file template.bbl.
-[25]
-=======
-[5]
 
 [6]
 
@@ -1137,14 +1117,14 @@ No file template.bbl.
 
 [8]
 
+[9]
+
 LaTeX Font Warning: Font shape `TU/SimSun(1)/b/n' undefined
 (Font)              using `TU/SimSun(1)/m/n' instead on input line 167.
 
 
 
-[9]) (./q2.tex
-
-[10]
+[10]) (./q2.tex
 
 [11]
 
@@ -1152,31 +1132,40 @@ LaTeX Font Warning: Font shape `TU/SimSun(1)/b/n' undefined
 
 [13]
 
-[14]) (./q3.tex
+[14]
 
-[15]
+[15]) (./q3.tex
 
 [16]
 
-[17])
+[17]
 
 [18]
+
+[19]) (./q4.tex
+
+[20]
+
+[21]
+
+[22]
+
+[23]
+
+[24])
+
+[25]
 No file template.bbl.
 
 
-[19]
->>>>>>> origin/Zml
+[26]
 
 Package caption Warning: Unused \captionsetup[sub] on input line 11.
 See the caption package documentation for explanation.
 
-<<<<<<< HEAD
-[26] (./template.aux)
-=======
 
 
-[20] (./template.aux)
->>>>>>> origin/Zml
+[27] (./template.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2022/08/05>
@@ -1186,28 +1175,15 @@ L3 programming layer <2022/08/05>
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 Package rerunfilecheck Info: File `template.out' has not changed.
-<<<<<<< HEAD
-(rerunfilecheck)             Checksum: 05E65159AFE8F5725AC47ECFC07C0EDD;8549.
+(rerunfilecheck)             Checksum: DAC9146106C7475C64D8104C901C88D3;8541.
  ) 
 Here is how much of TeX's memory you used:
- 34483 strings out of 474773
- 733023 string characters out of 5757723
- 1945839 words of memory out of 5000000
- 55973 multiletter control sequences out of 15000+600000
- 579614 words of font info for 183 fonts, out of 8000000 for 9000
- 1348 hyphenation exceptions out of 8191
- 108i,18n,114p,472b,634s stack positions out of 10000i,1000n,20000p,200000b,200000s
-=======
-(rerunfilecheck)             Checksum: 9C9898219977C801420CC9404B5D6A15;6806.
- ) 
-Here is how much of TeX's memory you used:
- 34131 strings out of 475796
- 719184 string characters out of 5774033
+ 34164 strings out of 475796
+ 720710 string characters out of 5774033
  1119764 words of memory out of 5000000
- 56416 multiletter control sequences out of 15000+600000
+ 56446 multiletter control sequences out of 15000+600000
  580382 words of font info for 183 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
- 108i,18n,125p,472b,554s stack positions out of 10000i,1000n,20000p,200000b,200000s
->>>>>>> origin/Zml
+ 108i,19n,125p,472b,554s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on template.pdf (26 pages).
+Output written on template.pdf (27 pages).

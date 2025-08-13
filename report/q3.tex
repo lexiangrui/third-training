@@ -2,11 +2,6 @@
 \subsection{问题三的描述与分析}
 
 \subsection{预备工作}
-
-\subsection{模型建立}
-
-<<<<<<< HEAD
-=======
 \subsubsection{集合、索引与参数}
 
 为适配附件三的多微基站、同频复用且存在小区间干扰的场景，定义如下集合与索引：
@@ -25,6 +20,8 @@
   \item 切片占用粒度：$i_U=10,\ i_e=5,\ i_m=2$（每个并发用户占用的 RB 数）；
   \item 发射功率决策范围（第三问）：$p_{n,s}(t)\in[10,30]\,\mathrm{dBm}$，为“基站 $n$ 在窗口 $t$ 对切片 $s$ 的统一每 RB 功率”（切片内各 RB 功率一致）。
 \end{itemize}
+
+\subsection{模型建立}
 
 \subsubsection{信道与干扰模型}
 
@@ -46,7 +43,7 @@
 \begin{equation}
  r_k(\tau)=i_s\cdot b\cdot \log_2\big(1+\gamma_k(\tau)\big)\quad(\mathrm{bps}).
 \end{equation}
-\subsubsection{任务队列动态演化模型}
+\subsubsection{任务到达与队列演化}
 
 任务队列的动态演化过程与问题二完全一致，队列状态 $Q_k(t)$ 仍以每个用户为中心进行追踪，其演化遵循公式 \eqref{eq:queue_evolution}。
 
@@ -63,33 +60,39 @@
 
 \subsubsection{QoS 评估函数}
 
-与问题一、二一致，定义任务级 QoS：
+服务质量（QoS）的评估与前几问一致，核心是衡量每个任务的时延和速率是否满足服务等级协议（SLA）。
+
+首先，我们需要计算每个任务的总时延。对于一个在时刻 $\tau$ 到达、数据量为 $D_{k,\tau}$ 的任务，其总时延 $L^{s}_{k,\tau}$ 由排队时延和传输时延两部分构成：
 \begin{equation}
- y^{U}_{k,\tau}=\begin{cases}
+    L^{s}_{k,\tau} = \underbrace{(t_{\text{start}} - \tau)}_{\text{排队时延}} + \underbrace{\frac{D_{k,\tau} \cdot 10^6}{\bar{r}_k(t_{\text{start}})}}_{\text{传输时延}}
+\end{equation}
+其中，$t_{\text{start}}$ 是该任务开始被服务的时刻，$\bar{r}_k(t_{\text{start}})$ 是服务期间的平均数据速率。
+
+然后，基于计算出的时延和瞬时速率，我们采用与前文相同的任务级 QoS 函数 $y^{s}_{k,\tau}$：
+\begin{align}
+ y^{U}_{k,\tau} &= \begin{cases}
  \alpha^{L^{U}_{k,\tau}} & L^{U}_{k,\tau}\le L^{\text{SLA}}_{U}\\
  -M_U & \text{否则}
- \end{cases},\quad
- y^{e}_{k,\tau}=\begin{cases}
- 1 & r_{k}(\tau_\text{srv})\ge r^{\text{SLA}}_{e}\ \&\ L^{e}_{k,\tau}\le L^{\text{SLA}}_{e}\\
- \dfrac{r_{k}(\tau_\text{srv})}{r^{\text{SLA}}_{e}} & r_{k}(\tau_\text{srv})< r^{\text{SLA}}_{e}\ \&\ L^{e}_{k,\tau}\le L^{\text{SLA}}_{e}\\
+ \end{cases} \\
+y^{e}_{k,\tau} &= \begin{cases}
+ 1 & r_{k}(\tau_\text{srv})\ge r^{\text{SLA}}_{e}\ \text{and}\ L^{e}_{k,\tau}\le L^{\text{SLA}}_{e}\\
+ \dfrac{r_{k}(\tau_\text{srv})}{r^{\text{SLA}}_{e}} & r_{k}(\tau_\text{srv})< r^{\text{SLA}}_{e}\ \text{and}\ L^{e}_{k,\tau}\le L^{\text{SLA}}_{e}\\
  -M_e & \text{否则}
- \end{cases}
-\end{equation}
-\begin{equation}
- y^{m}_{k,\tau}=\begin{cases}
+ \end{cases} \\
+ y^{m}_{k,\tau} &= \begin{cases}
  \dfrac{\sum\limits_{i\in\mathcal{K}_m}c'_i}{\sum\limits_{i\in\mathcal{K}_m}c_i} & L^{\,m}_{k,\tau}\le L^{\text{SLA}}_{m}\\
  -M_m & \text{否则}
  \end{cases}
-\end{equation}
-其中 $L^{s}_{k,\tau}=Q_{k,\tau}+T_{k,\tau}$ 为任务总时延，$\tau_\text{srv}$ 为其被服务时段代表点；$c_i,c'_i$ 分别表示 mMTC 的“有任务/成功接入”标记。SLA 与惩罚参数同问题一中表述：$\alpha=0.95$，$r^{\text{SLA}}_e=50\,\mathrm{Mbps}$，$L^{\text{SLA}}_{U}=5\,\mathrm{ms}$，$L^{\text{SLA}}_{e}=100\,\mathrm{ms}$，$L^{\text{SLA}}_{m}=500\,\mathrm{ms}$，$M_U=5, M_e=3, M_m=1$。
+\end{align}
+参考取值：$\alpha=0.95$，$r^{\text{SLA}}_e=50\,\mathrm{Mbps}$，$L^{\text{SLA}}_{U}=5\,\mathrm{ms}$，$L^{\text{SLA}}_{e}=100\,\mathrm{ms}$，$L^{\text{SLA}}_{m}=500\,\mathrm{ms}$，$M_U=5, M_e=3, M_m=1$。
 
 \subsubsection{决策变量与优化模型}
 
 决策变量：
 \begin{itemize}
-  \item RB 切片分配：$x_{n,s}(t)\in\mathbb{Z}_{\ge 0}$；
-  \item 发射功率：$p_{n,s}(t)\in[10,30]\,\mathrm{(dBm)}$；
-  \item 接入关联：$a_{n,k}(t)\in\{0,1\}$,若 $a_{n,k}(t)=1$ 则 $k$ 在窗口 $t$ 仅由站 $n$ 调度。
+  \item RB 切片分配：$x_{n,s}(t)\in\mathbb{Z}_{\ge 0}$
+  \item 发射功率：$p_{n,s}(t)\in[10,30]\,\mathrm{(dBm)}$
+  \item 接入关联：$a_{n,k}(t)\in\{0,1\}$,当 $a_{n,k}(t)=1$ 则 $k$ 在窗口 $t$ 仅由站 $n$ 调度
 \end{itemize}
 
 综合上述要素，第三问的动态联合优化模型可表述为（跨 10 个窗口聚合）：
@@ -106,7 +109,6 @@
 &Q_k(t+100)=\max\Big\{0,\ Q_k(t)+\sum_{\tau\in\mathcal{F}(t)} D_k(\tau)-S_k(t)\Big\} \\
 &r_k(\tau),\ \gamma_k(\tau)\ \text{由}\ (x,p,a)\ \text{与}\ (\phi,h)\ \text{及调度生成} \\
 &\sum_{n\in\mathcal{N}} a_{n,k}(t)\le 1 \\
-&a_{n,k}(t)\in\{0,1\} \\
 &\forall n\in\mathcal{N},\ t\in\mathcal{T},\ \forall n,k,s,t
 \end{aligned}
 \right.
@@ -115,7 +117,6 @@
 其中 $\mathcal{A}_k(t)\subseteq\mathcal{F}(t)$ 为窗口 $t$ 内属于用户 $k$ 且在 SLA 内完成的任务到达时刻集合；$r_k(\tau)$ 与 $S_k(t)$ 均受干扰耦合与调度影响，是 $(x,p,a)$ 的非线性函数。\\
 该模型体现了“多站同频干扰 + 切片化 RB 分配 + 切片级功率控制 + 任务队列”的耦合特性，属于带整数约束与非凸干扰项的时变 MINLP 问题。
 
->>>>>>> origin/Zml
 \subsection{模型求解}
 
 \textbf{Step1：} 
