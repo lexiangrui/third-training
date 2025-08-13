@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2024.10.22)  13 AUG 2025 00:22
+This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2024.10.22)  13 AUG 2025 11:12
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1113,14 +1113,14 @@ LaTeX Font Info:    Calculating math sizes for size <12.05> on input line 9.
 LaTeX Font Warning: Font shape `TU/STSong(1)/b/n' undefined
 (Font)              using `TU/STSong(1)/m/n' instead on input line 167.
 
-[9]) (./q2.tex [10] [11] [12] [13] [14]) (./q3.tex [15])
+[9]) (./q2.tex [10] [11] [12] [13] [14]) (./q3.tex [15] [16] [17] [18])
 No file template.bbl.
-[16]
+[19]
 
 Package caption Warning: Unused \captionsetup[sub] on input line 11.
 See the caption package documentation for explanation.
 
-[17] (./template.aux)
+[20] (./template.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2022/08/05>
@@ -1130,15 +1130,15 @@ L3 programming layer <2022/08/05>
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 Package rerunfilecheck Info: File `template.out' has not changed.
-(rerunfilecheck)             Checksum: 8754240967967F71D2A6C25AFCDA6A81;5789.
+(rerunfilecheck)             Checksum: 721D5552F9F61FB224F7AB47E0335819;6798.
  ) 
 Here is how much of TeX's memory you used:
- 34401 strings out of 474773
- 728241 string characters out of 5757723
+ 34444 strings out of 474773
+ 730977 string characters out of 5757723
  1945839 words of memory out of 5000000
- 55894 multiletter control sequences out of 15000+600000
+ 55937 multiletter control sequences out of 15000+600000
  579614 words of font info for 183 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 108i,13n,114p,472b,560s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 108i,18n,114p,472b,560s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on template.pdf (17 pages).
+Output written on template.pdf (20 pages).
