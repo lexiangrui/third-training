@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 \contentsline {section}{\numberline {1 \ }问题重述}{5}{section.1}%
 \contentsline {subsection}{\numberline {1.1}问题背景}{5}{subsection.1.1}%
 \contentsline {subsection}{\numberline {1.2}问题要求}{5}{subsection.1.2}%
@@ -24,10 +23,10 @@
 \contentsline {subsubsection}{\numberline {5.3.2}时延计算模型（任务级）}{12}{subsubsection.5.3.2}%
 \contentsline {subsubsection}{\numberline {5.3.3}动态服务质量评估函数}{12}{subsubsection.5.3.3}%
 \contentsline {subsubsection}{\numberline {5.3.4}多时间段优化模型}{13}{subsubsection.5.3.4}%
-\contentsline {subsection}{\numberline {5.4}模型求解}{13}{subsection.5.4}%
+\contentsline {subsection}{\numberline {5.4}模型求解}{14}{subsection.5.4}%
 \contentsline {subsection}{\numberline {5.5}求解结果}{15}{subsection.5.5}%
 \contentsline {subsubsection}{\numberline {5.5.1}最优资源分配序列}{15}{subsubsection.5.5.1}%
-\contentsline {subsubsection}{\numberline {5.5.2}并列最优解分析}{15}{subsubsection.5.5.2}%
+\contentsline {subsubsection}{\numberline {5.5.2}并列最优解分析}{16}{subsubsection.5.5.2}%
 \contentsline {subsubsection}{\numberline {5.5.3}结果分析}{16}{subsubsection.5.5.3}%
 \contentsline {section}{\numberline {6 \ }问题三的模型的建立和求解}{17}{section.6}%
 \contentsline {subsection}{\numberline {6.1}问题三的描述与分析}{17}{subsection.6.1}%
@@ -35,84 +34,33 @@
 \contentsline {subsection}{\numberline {6.3}模型建立}{17}{subsection.6.3}%
 \contentsline {subsubsection}{\numberline {6.3.1}集合、索引与参数}{17}{subsubsection.6.3.1}%
 \contentsline {subsubsection}{\numberline {6.3.2}信道与干扰模型}{17}{subsubsection.6.3.2}%
-\contentsline {subsubsection}{\numberline {6.3.3}任务到达与队列演化}{18}{subsubsection.6.3.3}%
+\contentsline {subsubsection}{\numberline {6.3.3}任务队列动态演化模型}{18}{subsubsection.6.3.3}%
 \contentsline {subsubsection}{\numberline {6.3.4}RB 切片并发与调度规则}{18}{subsubsection.6.3.4}%
 \contentsline {subsubsection}{\numberline {6.3.5}QoS 评估函数}{18}{subsubsection.6.3.5}%
 \contentsline {subsubsection}{\numberline {6.3.6}决策变量与优化模型}{19}{subsubsection.6.3.6}%
 \contentsline {subsection}{\numberline {6.4}模型求解}{19}{subsection.6.4}%
-\contentsline {subsection}{\numberline {6.5}求解结果}{20}{subsection.6.5}%
-\contentsline {section}{\numberline {7 \ }问题四的模型的建立和求解}{20}{section.7}%
-\contentsline {subsection}{\numberline {7.1}问题四的描述与分析}{20}{subsection.7.1}%
-\contentsline {subsection}{\numberline {7.2}预备工作}{20}{subsection.7.2}%
-\contentsline {subsubsection}{\numberline {7.2.1}集合、索引与参数}{20}{subsubsection.7.2.1}%
-\contentsline {subsection}{\numberline {7.3}模型建立}{21}{subsection.7.3}%
-\contentsline {subsubsection}{\numberline {7.3.1}信道与干扰模型}{21}{subsubsection.7.3.1}%
-\contentsline {subsubsection}{\numberline {7.3.2}任务到达、队列与时延}{21}{subsubsection.7.3.2}%
-\contentsline {subsubsection}{\numberline {7.3.3}接入与调度规则}{22}{subsubsection.7.3.3}%
-\contentsline {subsubsection}{\numberline {7.3.4}QoS 评估函数}{22}{subsubsection.7.3.4}%
-\contentsline {subsubsection}{\numberline {7.3.5}决策变量与优化模型}{22}{subsubsection.7.3.5}%
-\contentsline {subsection}{\numberline {7.4}模型求解}{23}{subsection.7.4}%
-\contentsline {paragraph}{总体流程（逐窗口）}{23}{section*.6}%
-\contentsline {paragraph}{复杂度与实现要点}{24}{section*.7}%
+\contentsline {subsubsection}{\numberline {6.4.1}外层：滚动时窗预测控制 (MPC)}{20}{subsubsection.6.4.1}%
+\contentsline {subsubsection}{\numberline {6.4.2}内层：混合编码遗传算法 (GA)}{20}{subsubsection.6.4.2}%
+\contentsline {subsection}{\numberline {6.5}结果分析}{21}{subsection.6.5}%
+\contentsline {section}{\numberline {7 \ }问题四的模型的建立和求解}{21}{section.7}%
+\contentsline {subsection}{\numberline {7.1}问题四的描述与分析}{21}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}预备工作}{21}{subsection.7.2}%
+\contentsline {subsubsection}{\numberline {7.2.1}集合、索引与参数}{21}{subsubsection.7.2.1}%
+\contentsline {subsection}{\numberline {7.3}模型建立}{22}{subsection.7.3}%
+\contentsline {subsubsection}{\numberline {7.3.1}信道与干扰模型}{22}{subsubsection.7.3.1}%
+\contentsline {subsubsection}{\numberline {7.3.2}任务到达、队列与时延}{22}{subsubsection.7.3.2}%
+\contentsline {subsubsection}{\numberline {7.3.3}接入与调度规则}{23}{subsubsection.7.3.3}%
+\contentsline {subsubsection}{\numberline {7.3.4}QoS 评估函数}{23}{subsubsection.7.3.4}%
+\contentsline {subsubsection}{\numberline {7.3.5}决策变量与优化模型}{23}{subsubsection.7.3.5}%
+\contentsline {subsection}{\numberline {7.4}模型求解}{24}{subsection.7.4}%
 \contentsline {subsection}{\numberline {7.5}结果分析}{24}{subsection.7.5}%
-\contentsline {section}{\numberline {8 \ }模型的分析与检验}{25}{section.8}%
-\contentsline {subsection}{\numberline {8.1}灵敏度分析}{25}{subsection.8.1}%
-\contentsline {subsection}{\numberline {8.2}误差分析}{25}{subsection.8.2}%
-\contentsline {section}{\numberline {9 \ }模型的评价}{25}{section.9}%
-\contentsline {subsection}{\numberline {9.1}模型的优点}{25}{subsection.9.1}%
-\contentsline {subsection}{\numberline {9.2}模型的缺点}{25}{subsection.9.2}%
+\contentsline {section}{\numberline {8 \ }模型的分析与检验}{24}{section.8}%
+\contentsline {subsection}{\numberline {8.1}灵敏度分析}{24}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}误差分析}{24}{subsection.8.2}%
+\contentsline {section}{\numberline {9 \ }模型的评价}{24}{section.9}%
+\contentsline {subsection}{\numberline {9.1}模型的优点}{24}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}模型的缺点}{24}{subsection.9.2}%
+\contentsline {section}{参考文献}{24}{section*.7}%
 \contentsline {section}{附录 \numberline {A}文件列表}{26}{appendix.a.A}%
 \contentsline {section}{附录 \numberline {B}代码}{26}{appendix.a.B}%
-=======
-\contentsline {section}{\numberline {1 \ }问题重述}{4}{section.1}%
-\contentsline {subsection}{\numberline {1.1}问题背景}{4}{subsection.1.1}%
-\contentsline {subsection}{\numberline {1.2}问题要求}{4}{subsection.1.2}%
-\contentsline {subsection}{\numberline {1.3}我们的工作}{5}{subsection.1.3}%
-\contentsline {section}{\numberline {2 \ }模型假设}{5}{section.2}%
-\contentsline {section}{\numberline {3 \ }符号说明}{5}{section.3}%
-\contentsline {section}{\numberline {4 \ }问题一的模型的建立和求解}{5}{section.4}%
-\contentsline {subsection}{\numberline {4.1}问题一的描述与分析}{5}{subsection.4.1}%
-\contentsline {subsection}{\numberline {4.2}预备工作}{6}{subsection.4.2}%
-\contentsline {subsubsection}{\numberline {4.2.1}关键参数补充}{6}{subsubsection.4.2.1}%
-\contentsline {subsection}{\numberline {4.3}模型建立}{6}{subsection.4.3}%
-\contentsline {subsubsection}{\numberline {4.3.1}传输速率计算}{6}{subsubsection.4.3.1}%
-\contentsline {subsubsection}{\numberline {4.3.2}时延计算模型}{7}{subsubsection.4.3.2}%
-\contentsline {subsubsection}{\numberline {4.3.3}服务质量评估函数}{7}{subsubsection.4.3.3}%
-\contentsline {subsubsection}{\numberline {4.3.4}优化模型}{8}{subsubsection.4.3.4}%
-\contentsline {subsection}{\numberline {4.4}模型求解}{8}{subsection.4.4}%
-\contentsline {subsection}{\numberline {4.5}求解结果}{9}{subsection.4.5}%
-\contentsline {section}{\numberline {5 \ }问题二的模型的建立和求解}{10}{section.5}%
-\contentsline {subsection}{\numberline {5.1}问题二的描述与分析}{10}{subsection.5.1}%
-\contentsline {subsection}{\numberline {5.2}预备工作}{10}{subsection.5.2}%
-\contentsline {subsection}{\numberline {5.3}模型建立}{10}{subsection.5.3}%
-\contentsline {subsubsection}{\numberline {5.3.1}任务队列动态演化模型}{10}{subsubsection.5.3.1}%
-\contentsline {subsubsection}{\numberline {5.3.2}时延计算模型（任务级）}{11}{subsubsection.5.3.2}%
-\contentsline {subsubsection}{\numberline {5.3.3}动态服务质量评估函数}{11}{subsubsection.5.3.3}%
-\contentsline {subsubsection}{\numberline {5.3.4}多时间段优化模型}{12}{subsubsection.5.3.4}%
-\contentsline {subsection}{\numberline {5.4}模型求解}{12}{subsection.5.4}%
-\contentsline {subsection}{\numberline {5.5}求解结果}{14}{subsection.5.5}%
-\contentsline {subsubsection}{\numberline {5.5.1}最优资源分配序列}{14}{subsubsection.5.5.1}%
-\contentsline {subsubsection}{\numberline {5.5.2}并列最优解分析}{14}{subsubsection.5.5.2}%
-\contentsline {subsubsection}{\numberline {5.5.3}结果分析}{15}{subsubsection.5.5.3}%
-\contentsline {section}{\numberline {6 \ }问题三的模型的建立和求解}{16}{section.6}%
-\contentsline {subsection}{\numberline {6.1}问题三的描述与分析}{16}{subsection.6.1}%
-\contentsline {subsection}{\numberline {6.2}预备工作}{16}{subsection.6.2}%
-\contentsline {subsection}{\numberline {6.3}模型建立}{16}{subsection.6.3}%
-\contentsline {subsubsection}{\numberline {6.3.1}集合、索引与参数}{16}{subsubsection.6.3.1}%
-\contentsline {subsubsection}{\numberline {6.3.2}信道与干扰模型}{16}{subsubsection.6.3.2}%
-\contentsline {subsubsection}{\numberline {6.3.3}任务队列动态演化模型}{17}{subsubsection.6.3.3}%
-\contentsline {subsubsection}{\numberline {6.3.4}RB 切片并发与调度规则}{17}{subsubsection.6.3.4}%
-\contentsline {subsubsection}{\numberline {6.3.5}QoS 评估函数}{17}{subsubsection.6.3.5}%
-\contentsline {subsubsection}{\numberline {6.3.6}决策变量与优化模型}{18}{subsubsection.6.3.6}%
-\contentsline {subsection}{\numberline {6.4}模型求解}{18}{subsection.6.4}%
-\contentsline {subsection}{\numberline {6.5}求解结果}{19}{subsection.6.5}%
-\contentsline {section}{\numberline {7 \ }模型的分析与检验}{19}{section.7}%
-\contentsline {subsection}{\numberline {7.1}灵敏度分析}{19}{subsection.7.1}%
-\contentsline {subsection}{\numberline {7.2}误差分析}{19}{subsection.7.2}%
-\contentsline {section}{\numberline {8 \ }模型的评价}{19}{section.8}%
-\contentsline {subsection}{\numberline {8.1}模型的优点}{19}{subsection.8.1}%
-\contentsline {subsection}{\numberline {8.2}模型的缺点}{19}{subsection.8.2}%
-\contentsline {section}{附录 \numberline {A}文件列表}{20}{appendix.1.A}%
-\contentsline {section}{附录 \numberline {B}代码}{20}{appendix.1.B}%
->>>>>>> origin/Zml
 \contentsfinish 
