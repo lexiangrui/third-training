@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.5.19)  13 AUG 2025 20:57
+This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.5.19)  13 AUG 2025 21:55
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1092,13 +1092,13 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 1.
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 
-[2])
+[2]
+
+[3])
 \tf@toc=\write6
 \openout6 = `template.toc'.
 
 
-
-[3]
 
 [4]
 Overfull \hbox (5.09286pt too wide) in paragraph at lines 49--50
@@ -1152,20 +1152,22 @@ LaTeX Font Warning: Font shape `TU/SimSun(1)/b/n' undefined
 
 [23]
 
-[24])
+[24]) (./q5.tex
 
-[25]
+[25])
+
+[26]
 No file template.bbl.
 
 
-[26]
+[27]
 
 Package caption Warning: Unused \captionsetup[sub] on input line 11.
 See the caption package documentation for explanation.
 
 
 
-[27] (./template.aux)
+[28] (./template.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2022/08/05>
@@ -1174,16 +1176,22 @@ L3 programming layer <2022/08/05>
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
-Package rerunfilecheck Info: File `template.out' has not changed.
-(rerunfilecheck)             Checksum: DAC9146106C7475C64D8104C901C88D3;8541.
+
+Package rerunfilecheck Warning: File `template.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `template.out':
+(rerunfilecheck)             Before: 8F9329A4F2B247EC8AB0130F4EC2A85F;10264
+(rerunfilecheck)             After:  27F828053F57C29A5C8F36C440FF22BA;9617.
  ) 
 Here is how much of TeX's memory you used:
- 34164 strings out of 475796
- 720710 string characters out of 5774033
- 1119764 words of memory out of 5000000
- 56446 multiletter control sequences out of 15000+600000
+ 34172 strings out of 475796
+ 720797 string characters out of 5774033
+ 1120298 words of memory out of 5000000
+ 56451 multiletter control sequences out of 15000+600000
  580382 words of font info for 183 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
  108i,19n,125p,472b,554s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on template.pdf (27 pages).
+Output written on template.pdf (28 pages).

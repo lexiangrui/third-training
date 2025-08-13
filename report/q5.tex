@@ -1,0 +1,50 @@
+\section{问题五的模型的建立和求解}
+\subsection{问题五的描述与分析}
+
+\subsection{预备工作}
+
+\subsection{模型建立}
+
+\subsubsection{能耗模型}
+
+基于附录6的能耗模型，每个基站 $n \in \bar{\mathcal{N}}$ 的总能耗由三部分组成：
+\begin{equation}
+P_n = P_{static} + P_{RB,n} + P_{tx,n}
+\end{equation}
+
+其中：
+\begin{itemize}
+  \item 固定能耗：$P_{static} = 28\,\mathrm{W}$（基础运行功耗）
+  \item RB激活能耗：$P_{RB,n} = \delta \times N_{active,n}$，其中 $\delta = 0.75\,\mathrm{W/RB}$，$N_{active,n} = \sum_{s\in\mathcal{S}} x_{n,s}(t)$ 为基站 $n$ 分配的资源块总数
+  \item 发射能耗：$P_{tx,n} = \frac{1}{\eta} P_{transmit,n}$，其中 $\eta = 0.35$ 为效率系数，$P_{transmit,n} = \sum_{s\in\mathcal{S}} p_{n,s}^{(W)}(t) \cdot x_{n,s}(t)$ 为基站 $n$ 的总发射功率
+\end{itemize}
+
+功率单位换算：$p_{n,s}^{(W)}(t) = 10^{\frac{p_{n,s}(t)-30}{10}}$，其中 $p_{n,s}(t)$ 为决策变量（单位 dBm）。
+
+全网总能耗为：
+\begin{equation}
+P_{total} = \sum_{n\in\bar{\mathcal{N}}} P_n
+\end{equation}
+
+\subsubsection{多目标优化模型}
+
+在第四问的基础上，增加能耗最小化目标，形成多目标优化问题：
+\begin{equation}
+\begin{aligned}
+\min_{\{x,p,a\}} \quad & \lambda P_{total} - (1-\lambda) Q_{total} \\
+\text{s.t.} \quad & \text{第四问的所有约束条件}
+\end{aligned}
+\end{equation}
+
+其中：
+\begin{itemize}
+  \item $Q_{total} = \sum_{t\in\mathcal{T}}\sum_{s\in\mathcal{S}}\sum_{k\in\mathcal{K}_s}\sum_{\tau\in\mathcal{A}_k(t)} y^{s}_{k,\tau}$ 为全网用户服务质量总和
+  \item $\lambda \in [0,1]$ 为权重系数，调节能耗与服务质量的权衡
+  \item 决策变量 $\{x_{n,s}(t), p_{n,s}(t), a_{n,k}(t)\}$ 同第四问
+\end{itemize}
+
+\subsection{模型求解}
+
+
+\subsection{结果分析}
+
