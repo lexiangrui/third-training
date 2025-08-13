@@ -1,50 +1,96 @@
 \section{问题五的模型的建立和求解}
 \subsection{问题五的描述与分析}
 
+本问在第四问的异构网络场景和QoS评估框架基础上，引入了基站的能耗模型，旨在探索在保障用户服务质量的同时，实现网络能耗的最小化。这是一个典型的多目标优化问题，要求我们在最大化QoS和最小化能耗这两个相互冲突的目标之间找到最佳平衡。
+
+根据题目“能耗最低的同时能够达到最大的用户服务质量”的描述，我们理解这是一个具有明确优先级顺序的目标：首先应尽可能降低能耗，然后在低能耗的方案中选择能够最大化QoS的策略。为此，我们设计了一个两阶段的优化求解框架。
+
 \subsection{预备工作}
+
+\subsubsection{集合、索引与参数}
+
+本问的集合、索引与大部分参数均与第四问保持一致。
+\begin{itemize}
+    \item 基站集合：$\bar{\mathcal{N}}=\{0\}\cup\mathcal{N}$，其中 $0$ 表示 MBS，$\mathcal{N}=\{1,2,3\}$ 表示 SBS 集合。
+    \item 切片集合：$\mathcal{S}=\{U,e,m\}$。
+    \item 用户集合：$\mathcal{K}=\mathcal{K}_U\cup\mathcal{K}_e\cup\mathcal{K}_m$。
+    \item 决策时刻集合：$\mathcal{T}=\{0,100,\dots,900\}$ ms。
+\end{itemize}
+
+新增的能耗模型相关参数（基于附录6）如下：
+\begin{itemize}
+    \item 固定功耗：$P_{static} = 28\,\mathrm{W}$。
+    \item 每RB激活功耗系数：$\delta = 0.75\,\mathrm{W/RB}$。
+    \item 功率放大器效率：$\eta = 0.35$。
+\end{itemize}
 
 \subsection{模型建立}
 
 \subsubsection{能耗模型}
 
-基于附录6的能耗模型，每个基站 $n \in \bar{\mathcal{N}}$ 的总能耗由三部分组成：
+基于附录6，每个基站 $n \in \bar{\mathcal{N}}$ 在任意时刻 $\tau$ 的总功耗 $P_n(\tau)$ 由三部分组成：
 \begin{equation}
-P_n = P_{static} + P_{RB,n} + P_{tx,n}
+P_n(\tau) = P_{static} + P_{RB,n}(\tau) + P_{tx,n}(\tau)
 \end{equation}
-
 其中：
 \begin{itemize}
-  \item 固定能耗：$P_{static} = 28\,\mathrm{W}$（基础运行功耗）
-  \item RB激活能耗：$P_{RB,n} = \delta \times N_{active,n}$，其中 $\delta = 0.75\,\mathrm{W/RB}$，$N_{active,n} = \sum_{s\in\mathcal{S}} x_{n,s}(t)$ 为基站 $n$ 分配的资源块总数
-  \item 发射能耗：$P_{tx,n} = \frac{1}{\eta} P_{transmit,n}$，其中 $\eta = 0.35$ 为效率系数，$P_{transmit,n} = \sum_{s\in\mathcal{S}} p_{n,s}^{(W)}(t) \cdot x_{n,s}(t)$ 为基站 $n$ 的总发射功率
+  \item \textbf{固定功耗} $P_{static}$：基站基础运行所需功耗。
+  \item \textbf{RB激活功耗} $P_{RB,n}(\tau) = \delta \cdot N_{active,n}(\tau)$，与该时刻激活的RB总数 $N_{active,n}(\tau)$ 成正比。$N_{active,n}(\tau)$ 是基站 $n$ 在时刻 $\tau$ 上服务所有用户的RB数量之和。
+  \item \textbf{发射功耗} $P_{tx,n}(\tau) = \frac{1}{\eta} P_{transmit,n}(\tau)$，与总发射功率 $P_{transmit,n}(\tau)$ 成正比。$P_{transmit,n}(\tau)$ 是基站 $n$ 在时刻 $\tau$ 上服务所有用户的发射功率之和，单位为瓦特(W)。
 \end{itemize}
-
-功率单位换算：$p_{n,s}^{(W)}(t) = 10^{\frac{p_{n,s}(t)-30}{10}}$，其中 $p_{n,s}(t)$ 为决策变量（单位 dBm）。
-
-全网总能耗为：
+全网在时刻 $\tau$ 的总功耗为 $P_{total}(\tau) = \sum_{n\in\bar{\mathcal{N}}} P_n(\tau)$。在一个决策窗口 $t$（时长为 $T_w=100$ms）内的总能耗（单位：焦耳）为：
 \begin{equation}
-P_{total} = \sum_{n\in\bar{\mathcal{N}}} P_n
+E_{total}(t) = \int_{t}^{t+T_w} P_{total}(\tau) d\tau
 \end{equation}
 
-\subsubsection{多目标优化模型}
+\subsubsection{两阶段优化模型}
 
-在第四问的基础上，增加能耗最小化目标，形成多目标优化问题：
+为实现“优先最小化能耗，再最大化QoS”的目标，我们将原问题分解为两个 последовательных (sequential) 的子问题，在每个决策窗口 $t \in \mathcal{T}$ 内依次求解。
+
+\paragraph{第一阶段：能耗最小化}
+此阶段的目标是找到一组切片功率分配方案 $\{p_{n,s}(t)\}$，使得在固定的接入和RB分配策略下，窗口内的总能耗 $E_{total}(t)$ 最小。
+\begin{itemize}
+    \item \textbf{固定接入策略}：为简化模型，所有用户均接入距离其最近的基站（MBS或SBS），记为 $a_{n,k}(t) = a_{nearest, k}(t)$。
+    \item \textbf{固定RB分配策略}：为保证基础通信能力，各基站的RB资源在不同业务切片间进行均衡分配，记为 $x_{n,s}(t) = x_{equal, n,s}$。
+\end{itemize}
+该阶段的优化模型表述为：
 \begin{equation}
 \begin{aligned}
-\min_{\{x,p,a\}} \quad & \lambda P_{total} - (1-\lambda) Q_{total} \\
-\text{s.t.} \quad & \text{第四问的所有约束条件}
+\min_{\{p_{n,s}(t)\}} \quad & E_{total}(t; \{p_{n,s}(t)\}) \\
+\text{s.t.} \quad & p_{min, n} \le p_{n,s}(t) \le p_{max, n}, \quad \forall n \in \bar{\mathcal{N}}, s \in \mathcal{S}
 \end{aligned}
 \end{equation}
+决策变量仅为各基站各切片的发射功率 $p_{n,s}(t)$。
 
-其中：
+\paragraph{第二阶段：QoS最大化}
+在第一阶段得到的最优功率分配方案 $p^*_{n,s}(t)$ 的基础上，此阶段通过优化RB切片分配 $\{x_{n,s}(t)\}$ 来最大化全网用户的总服务质量 $Q_{total}(t)$。
 \begin{itemize}
-  \item $Q_{total} = \sum_{t\in\mathcal{T}}\sum_{s\in\mathcal{S}}\sum_{k\in\mathcal{K}_s}\sum_{\tau\in\mathcal{A}_k(t)} y^{s}_{k,\tau}$ 为全网用户服务质量总和
-  \item $\lambda \in [0,1]$ 为权重系数，调节能耗与服务质量的权衡
-  \item 决策变量 $\{x_{n,s}(t), p_{n,s}(t), a_{n,k}(t)\}$ 同第四问
+    \item \textbf{固定功率策略}：采用第一阶段优化得到的功率 $p_{n,s}(t) = p^*_{n,s}(t)$。
+    \item \textbf{固定接入策略}：同样为最近基站接入 $a_{n,k}(t) = a_{nearest, k}(t)$。
 \end{itemize}
+该阶段的优化模型表述为：
+\begin{equation}
+\begin{aligned}
+\max_{\{x_{n,s}(t)\}} \quad & Q_{total}(t; \{x_{n,s}(t)\}) \\
+\text{s.t. 第四问的所有约束条件}  
+\end{aligned}
+\end{equation}
+决策变量为各基站为不同业务切片分配的RB数量 $x_{n,s}(t)$，它必须满足总数约束和相应切片的粒度约束。
 
 \subsection{模型求解}
 
+我们延续“滚动时域控制(MPC)”框架，在每个100ms的窗口内，依次执行上述两阶段优化。
+
+\paragraph{第一阶段求解：遗传算法 (GA)}
+由于能耗与功率之间存在复杂的非线性关系，且其评估依赖于精细的动态仿真，我们采用遗传算法（GA）求解第一阶段的功率优化问题。
+\begin{itemize}
+    \item \textbf{编码}：个体仅编码各基站各切片的功率值，为一个长度为 $4 \times 3 = 12$ 的浮点数数组。
+    \item \textbf{适应度函数}：适应度被定义为窗口内总能耗的负值，即 $f = -E_{total}$。该能耗值通过调用一个1ms步长的仿真器，在固定的接入和RB分配下模拟整个窗口得出。
+    \item \textbf{遗传算子}：采用锦标赛选择、算术交叉和高斯扰动变异。
+\end{itemize}
+
+\paragraph{第二阶段求解：枚举}
+该阶段方法与第二问大致相同，区别在于第四问开始增加了宏基站，在枚举时需要同时考虑宏基站和微基站的RB分配。
 
 \subsection{结果分析}
 

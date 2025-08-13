@@ -156,7 +156,7 @@ y_k^{m}(t) = \begin{cases}
 
 重复Step2，直到完成所有10个决策窗口（$t=0$至$t=900$）的决策。最后，将每个窗口获得的最优QoS得分进行累加，得到整个1000ms内的总服务质量。通过这种方式，我们得到了一系列动态的RB分配决策，以及最终的系统整体性能评估。
 
-\subsection{求解结果}
+\subsection{结果分析}
 
 通过执行上述基于MPC的贪心算法，我们得到了1000ms内的动态资源分配策略，其总服务质量达到了\textbf{352.1029}。
 
@@ -219,8 +219,6 @@ y_k^{m}(t) = \begin{cases}
 \hline
 \end{tabular}
 \end{table}
-
-\subsubsection{结果分析}
 
 \begin{itemize}
     \item \textbf{动态适应性}：从资源分配序列（表 \ref{tab:q2_decision_sequence}）可以看出，算法展现了良好的动态适应性。在仿真初期（0-300ms），eMBB业务有大量任务到达，算法明智地为其分配了20个RB以快速处理，获得了较高的QoS。在300ms后，eMBB任务队列清空，算法果断地将其RB资源完全回收，转而分配给URLLC和mMTC，以应对后续的URLLC任务并保证mMTC的稳定接入。

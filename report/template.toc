@@ -24,10 +24,9 @@
 \contentsline {subsubsection}{\numberline {5.3.3}动态服务质量评估函数}{12}{subsubsection.5.3.3}%
 \contentsline {subsubsection}{\numberline {5.3.4}多时间段优化模型}{13}{subsubsection.5.3.4}%
 \contentsline {subsection}{\numberline {5.4}模型求解}{14}{subsection.5.4}%
-\contentsline {subsection}{\numberline {5.5}求解结果}{15}{subsection.5.5}%
+\contentsline {subsection}{\numberline {5.5}结果分析}{15}{subsection.5.5}%
 \contentsline {subsubsection}{\numberline {5.5.1}最优资源分配序列}{15}{subsubsection.5.5.1}%
 \contentsline {subsubsection}{\numberline {5.5.2}并列最优解分析}{16}{subsubsection.5.5.2}%
-\contentsline {subsubsection}{\numberline {5.5.3}结果分析}{16}{subsubsection.5.5.3}%
 \contentsline {section}{\numberline {6 \ }问题三的模型的建立和求解}{17}{section.6}%
 \contentsline {subsection}{\numberline {6.1}问题三的描述与分析}{17}{subsection.6.1}%
 \contentsline {subsection}{\numberline {6.2}预备工作}{17}{subsection.6.2}%
@@ -39,7 +38,6 @@
 \contentsline {subsubsection}{\numberline {6.3.4}QoS 评估函数}{18}{subsubsection.6.3.4}%
 \contentsline {subsubsection}{\numberline {6.3.5}决策变量与优化模型}{19}{subsubsection.6.3.5}%
 \contentsline {subsection}{\numberline {6.4}模型求解}{20}{subsection.6.4}%
-<<<<<<< HEAD
 \contentsline {subsubsection}{\numberline {6.4.1}外层：滚动时窗预测控制 (MPC)}{20}{subsubsection.6.4.1}%
 \contentsline {subsubsection}{\numberline {6.4.2}内层：混合编码遗传算法 (GA)}{20}{subsubsection.6.4.2}%
 \contentsline {subsubsection}{\numberline {6.4.3}求解流程}{21}{subsubsection.6.4.3}%
@@ -57,46 +55,26 @@
 \contentsline {subsection}{\numberline {7.4}模型求解}{26}{subsection.7.4}%
 \contentsline {subsubsection}{\numberline {7.4.1}内层：混合编码遗传算法 (GA) 的适配}{26}{subsubsection.7.4.1}%
 \contentsline {subsection}{\numberline {7.5}结果分析}{27}{subsection.7.5}%
-\contentsline {section}{\numberline {8 \ }模型的分析与检验}{27}{section.8}%
-\contentsline {subsection}{\numberline {8.1}灵敏度分析}{27}{subsection.8.1}%
-\contentsline {subsection}{\numberline {8.2}误差分析}{27}{subsection.8.2}%
-\contentsline {section}{\numberline {9 \ }模型的评价}{27}{section.9}%
-\contentsline {subsection}{\numberline {9.1}模型的优点}{27}{subsection.9.1}%
-\contentsline {subsection}{\numberline {9.2}模型的缺点}{27}{subsection.9.2}%
-\contentsline {section}{参考文献}{27}{section*.7}%
-\contentsline {section}{附录 \numberline {A}文件列表}{28}{appendix.a.A}%
-\contentsline {section}{附录 \numberline {B}代码}{28}{appendix.a.B}%
-=======
-\contentsline {subsection}{\numberline {6.5}求解结果}{20}{subsection.6.5}%
-\contentsline {section}{\numberline {7 \ }问题四的模型的建立和求解}{20}{section.7}%
-\contentsline {subsection}{\numberline {7.1}问题四的描述与分析}{20}{subsection.7.1}%
-\contentsline {subsection}{\numberline {7.2}预备工作}{20}{subsection.7.2}%
-\contentsline {subsubsection}{\numberline {7.2.1}集合、索引与参数}{20}{subsubsection.7.2.1}%
-\contentsline {subsection}{\numberline {7.3}模型建立}{21}{subsection.7.3}%
-\contentsline {subsubsection}{\numberline {7.3.1}信道与干扰模型}{21}{subsubsection.7.3.1}%
-\contentsline {subsubsection}{\numberline {7.3.2}任务到达与队列演化}{21}{subsubsection.7.3.2}%
-\contentsline {subsubsection}{\numberline {7.3.3}接入与调度规则}{22}{subsubsection.7.3.3}%
-\contentsline {subsubsection}{\numberline {7.3.4}QoS 评估函数}{22}{subsubsection.7.3.4}%
-\contentsline {subsubsection}{\numberline {7.3.5}决策变量与优化模型}{23}{subsubsection.7.3.5}%
-\contentsline {subsection}{\numberline {7.4}模型求解}{24}{subsection.7.4}%
-\contentsline {paragraph}{总体流程（逐窗口）}{24}{section*.6}%
-\contentsline {paragraph}{复杂度与实现要点}{24}{section*.7}%
-\contentsline {subsection}{\numberline {7.5}结果分析}{25}{subsection.7.5}%
-\contentsline {section}{\numberline {8 \ }问题五的模型的建立和求解}{25}{section.8}%
-\contentsline {subsection}{\numberline {8.1}问题五的描述与分析}{25}{subsection.8.1}%
-\contentsline {subsection}{\numberline {8.2}预备工作}{25}{subsection.8.2}%
-\contentsline {subsection}{\numberline {8.3}模型建立}{25}{subsection.8.3}%
-\contentsline {subsubsection}{\numberline {8.3.1}能耗模型}{25}{subsubsection.8.3.1}%
-\contentsline {subsubsection}{\numberline {8.3.2}多目标优化模型}{26}{subsubsection.8.3.2}%
-\contentsline {subsection}{\numberline {8.4}模型求解}{26}{subsection.8.4}%
-\contentsline {subsection}{\numberline {8.5}结果分析}{26}{subsection.8.5}%
-\contentsline {section}{\numberline {9 \ }模型的分析与检验}{26}{section.9}%
-\contentsline {subsection}{\numberline {9.1}灵敏度分析}{26}{subsection.9.1}%
-\contentsline {subsection}{\numberline {9.2}误差分析}{26}{subsection.9.2}%
-\contentsline {section}{\numberline {10 \ }模型的评价}{26}{section.10}%
-\contentsline {subsection}{\numberline {10.1}模型的优点}{26}{subsection.10.1}%
-\contentsline {subsection}{\numberline {10.2}模型的缺点}{27}{subsection.10.2}%
-\contentsline {section}{附录 \numberline {A}文件列表}{28}{appendix.1.A}%
-\contentsline {section}{附录 \numberline {B}代码}{28}{appendix.1.B}%
->>>>>>> origin/Zml
+\contentsline {section}{\numberline {8 \ }问题五的模型的建立和求解}{27}{section.8}%
+\contentsline {subsection}{\numberline {8.1}问题五的描述与分析}{27}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}预备工作}{27}{subsection.8.2}%
+\contentsline {subsubsection}{\numberline {8.2.1}集合、索引与参数}{27}{subsubsection.8.2.1}%
+\contentsline {subsection}{\numberline {8.3}模型建立}{28}{subsection.8.3}%
+\contentsline {subsubsection}{\numberline {8.3.1}能耗模型}{28}{subsubsection.8.3.1}%
+\contentsline {subsubsection}{\numberline {8.3.2}两阶段优化模型}{28}{subsubsection.8.3.2}%
+\contentsline {paragraph}{第一阶段：能耗最小化}{28}{section*.7}%
+\contentsline {paragraph}{第二阶段：QoS最大化}{29}{section*.8}%
+\contentsline {subsection}{\numberline {8.4}模型求解}{29}{subsection.8.4}%
+\contentsline {paragraph}{第一阶段求解：遗传算法 (GA)}{29}{section*.9}%
+\contentsline {paragraph}{第二阶段求解：枚举}{29}{section*.10}%
+\contentsline {subsection}{\numberline {8.5}结果分析}{29}{subsection.8.5}%
+\contentsline {section}{\numberline {9 \ }模型的分析与检验}{29}{section.9}%
+\contentsline {subsection}{\numberline {9.1}灵敏度分析}{29}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}误差分析}{29}{subsection.9.2}%
+\contentsline {section}{\numberline {10 \ }模型的评价}{29}{section.10}%
+\contentsline {subsection}{\numberline {10.1}模型的优点}{29}{subsection.10.1}%
+\contentsline {subsection}{\numberline {10.2}模型的缺点}{30}{subsection.10.2}%
+\contentsline {section}{参考文献}{30}{section*.11}%
+\contentsline {section}{附录 \numberline {A}文件列表}{31}{appendix.a.A}%
+\contentsline {section}{附录 \numberline {B}代码}{31}{appendix.a.B}%
 \contentsfinish 
