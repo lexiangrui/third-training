@@ -1,0 +1,147 @@
+\section{问题四的模型的建立和求解}
+\subsection{问题四的描述与分析}
+
+本问引入宏基站（Macro BS, 记作 MBS）与多个微基站（Small BS, 记作 SBS）的异构蜂窝网络：MBS 具备更充裕的频谱资源且覆盖广；SBS 负责边缘热点的增强覆盖。题设指出 MBS 与所有 SBS 采用\textbf{不重叠频谱}，因此\textbf{跨层无干扰}；但各 SBS 之间\textbf{同频复用}，存在相互干扰。系统每 $100$ms 进行一次联合决策，周期内以 $1$ms 进行仿真演化。与第三问相比，第四问新增了跨层接入模式决策：\textbf{每个用户要么接入最近的 SBS，要么接入 MBS}（SBS 的选择被限定为“最近微站”）。
+
+资源与功率设定：MBS 拥有 $100$ 个 RB，功率范围 $[10,40]$ dBm；每个 SBS 拥有 $50$ 个 RB，功率范围 $[10,30]$ dBm。三类切片的 RB 占用粒度与 SLA 约束与前几问一致（URLLC/eMBB/mMTC 分别占用 $10/5/2$ 个 RB，并满足表中速率/时延/SLA/惩罚系数约束）。附件四提供了 $1000$ms 窗口内各用户任务到达与位置、MBS 与各 SBS 的大/小规模衰落时序数据，支撑逐毫秒的链路与队列仿真。
+
+本问是一个“跨层接入 + 多站切片 + 切片级功率控制 + 队列与 SLA 约束 + SBS 间干扰耦合”的时变混合整数非凸优化问题（MINLP）。为保持可计算性，下文给出一致化的符号体系、精确的数学建模与可操作的分层求解策略。
+
+\subsection{预备工作}
+
+\subsubsection{集合、索引与参数}
+
+\begin{itemize}
+  \item 基站集合：$\bar{\mathcal{N}}=\{0\}\cup\mathcal{N}$，其中 $0$ 表示 MBS，$\mathcal{N}=\{1,2,\dots,N_s\}$ 表示 SBS 集合（附件四为三站示例：$N_s=3$）。
+  \item 切片集合：$\mathcal{S}=\{U,e,m\}$，分别对应 URLLC/eMBB/mMTC。
+  \item 用户集合：$\mathcal{K}=\mathcal{K}_U\cup\mathcal{K}_e\cup\mathcal{K}_m$。
+  \item 决策时刻集合：$\mathcal{T}=\{0,100,\dots,900\}$（单位 ms）；窗口内细粒度时刻集合：$\mathcal{F}(t)=\{t,t+1,\dots,t+99\}$。
+  \item RB 总数：$R_0=100$（MBS），$R_n=50$（$n\in\mathcal{N}$，SBS）。单 RB 带宽 $b=360\,\mathrm{kHz}$，噪声系数 $NF=7\,\mathrm{dB}$。
+  \item 切片占用粒度：$i_U=10,\ i_e=5,\ i_m=2$（每个\textbf{并发}用户占用的 RB 数）。
+  \item 发射功率范围：$p_{0,s}(t)\in[10,40]$ dBm（MBS），$p_{n,s}(t)\in[10,30]$ dBm（SBS，$n\in\mathcal{N}$），为“基站 $n$ 在窗口 $t$ 对切片 $s$ 的统一每 RB 功率”。
+  \item 候选接入集合：每个用户 $k$ 的候选基站集合限定为 $\{0,\operatorname*{argmin}_{n\in\mathcal{N}}\Phi_{n,k}\}$，即“宏站或最近微站”。其中 $\Phi_{n,k}$ 可取窗口平均的路径损耗或地理最近（由附件位置/损耗数据导出）。
+\end{itemize}
+
+附件四提供 $\phi_{n,k}(\tau)$（dB, 大规模损耗）、$h_{n,k}(\tau)$（瑞利小尺度）与任务到达序列 $D_k(\tau)$。决策窗口内按 $1$ms 时间步精确计算链路与服务过程。
+
+\subsection{模型建立}
+
+\subsubsection{信道与干扰模型}
+
+若用户 $k\in\mathcal{K}_s$ 在窗口 $t$ 由基站 $n\in\bar{\mathcal{N}}$ 服务且被分配切片 $s$ 的并发资源槽，则 $\tau\in\mathcal{F}(t)$ 时刻接收功率（mW）为
+\begin{equation}
+ p_{\mathrm{rx},n\to k}(\tau)=10^{\frac{p_{n,s}(t)-\phi_{n,k}(\tau)}{10}}\cdot |h_{n,k}(\tau)|^2.
+\end{equation}
+噪声功率与占用 RB 数 $i_s$ 成正比，换算为线性功率（mW）：
+\begin{equation}
+ N_0(i_s)=10^{\frac{-174+10\log_{10}(i_s\cdot b)+NF-30}{10}}.
+\end{equation}
+SBS 层采用同频复用，\textbf{仅}当不同 SBS 在同一 RB 索引上并发传输时产生互扰。为此，每个基站在窗口 $t$ 内将其 RB 在频域上按切片连续划分且顺序固定（例如 U-e-m），跨站的相同 RB 索引构成同信道。于是
+\begin{equation}
+ \gamma_k(\tau)=\frac{p_{\mathrm{rx},n\to k}(\tau)}{\underbrace{\sum\limits_{u\in\mathcal{N},\ u\neq n} I_{u\to k}(\tau)}_{\text{仅当 }n\in\mathcal{N}\text{ 时存在}}+N_0(i_s)},\quad s\in\mathcal{S},
+\end{equation}
+其中 $I_{u\to k}(\tau)$ 表示来自他站 $u$、在与 $k$ 所占 RB 索引重叠的切片 RB 上的干扰功率，按与上式相同的接收功率表达（由 $p_{u,s'}(t),\phi_{u,k}(\tau),h_{u,k}(\tau)$ 决定）。\textbf{对于 MBS（$n=0$），跨层无干扰}，其分母只含噪声项。基于香农公式，瞬时速率为
+\begin{equation}
+ r_k(\tau)=i_s\cdot b\cdot \log_2\big(1+\gamma_k(\tau)\big)\quad(\mathrm{bps}).
+\end{equation}
+
+\subsubsection{任务到达、队列与时延}
+
+令 $D_k(\tau)\ge 0$ 表示 $1$ms 时刻 $\tau$ 到达用户 $k$ 的任务数据量（Mbit，来自 taskflow 数据）。任务按 FIFO 服务。记窗口起点的队列为 $Q_k(t)$。若窗口 $t$ 内被服务的时隙集合为 $\mathcal{U}_k(t)\subseteq\mathcal{F}(t)$，则窗口内可传输的数据量为
+\begin{equation}
+ S_k(t)=\sum_{\tau\in\mathcal{U}_k(t)} r_k(\tau)\cdot 10^{-6}\cdot 10^{-3}\quad(\mathrm{Mbit}).
+\end{equation}
+窗口结束时队列更新为
+\begin{equation}
+ Q_k(t+100)=\max\Big\{0,\ Q_k(t)+\sum_{\tau\in\mathcal{F}(t)} D_k(\tau)-S_k(t)\Big\}.
+\end{equation}
+对到达于时刻 $\tau$ 的任务，记开始服务时刻为 $t_{\text{start}}$，其排队时延 $Q_{k,\tau}=t_{\text{start}}-\tau$，传输时延 $T_{k,\tau}=\dfrac{D_{k,\tau}\cdot 10^6}{\bar{r}_k(t_{\text{start}})}$（$\bar{r}$ 为窗口内代表速率），总时延 $L^{s}_{k,\tau}=Q_{k,\tau}+T_{k,\tau}$。
+
+\subsubsection{接入与调度规则}
+
+\begin{itemize}
+  \item 接入限制：仅允许 $a_{0,k}(t)$ 与 $a_{n^*(k),k}(t)$ 之一为 $1$，其中 $n^*(k)$ 为 $k$ 的最近微站；其余基站的接入指示为 $0$。
+  \item 切片并发容量：每个 $(n,s)$ 的并发容量为 $C_{n,s}(t)=\big\lfloor x_{n,s}(t)/i_s\big\rfloor$，窗口内采用“编号靠前优先”的串-并行调度：每个 $(n,s)$ 最多同时服务 $C_{n,s}(t)$ 个队头任务，任务完成即释放并补位。URLLC 在切片内可按紧迫度（距 SLA 的剩余时限）优先。
+\end{itemize}
+
+\subsubsection{QoS 评估函数}
+
+与前两问一致，定义任务级 QoS：
+\begin{equation}
+ y^{U}_{k,\tau}=\begin{cases}
+ \alpha^{L^{U}_{k,\tau}} & L^{U}_{k,\tau}\le L^{\text{SLA}}_{U}\\
+ -M_U & \text{否则}
+ \end{cases},\quad
+ y^{e}_{k,\tau}=\begin{cases}
+ 1 & r_{k}(\tau_\text{srv})\ge r^{\text{SLA}}_{e}\ \&\ L^{e}_{k,\tau}\le L^{\text{SLA}}_{e}\\
+ \dfrac{r_{k}(\tau_\text{srv})}{r^{\text{SLA}}_{e}} & r_{k}(\tau_\text{srv})< r^{\text{SLA}}_{e}\ \&\ L^{e}_{k,\tau}\le L^{\text{SLA}}_{e}\\
+ -M_e & \text{否则}
+ \end{cases}
+\end{equation}
+\begin{equation}
+ y^{m}_{k,\tau}=\begin{cases}
+ \dfrac{\sum\limits_{i\in\mathcal{K}_m}c'_i}{\sum\limits_{i\in\mathcal{K}_m}c_i} & L^{\,m}_{k,\tau}\le L^{\text{SLA}}_{m}\\
+ -M_m & \text{否则}
+ \end{cases}
+\end{equation}
+参数取值：$\alpha=0.95$，$r^{\text{SLA}}_e=50\,\mathrm{Mbps}$，$L^{\text{SLA}}_{U}=5\,\mathrm{ms}$，$L^{\text{SLA}}_{e}=100\,\mathrm{ms}$，$L^{\text{SLA}}_{m}=500\,\mathrm{ms}$，$M_U=5, M_e=3, M_m=1$。
+
+\subsubsection{决策变量与优化模型}
+
+决策变量：
+\begin{itemize}
+  \item RB 切片分配：$x_{n,s}(t)\in\mathbb{Z}_{\ge 0}$，$\sum\limits_{s\in\mathcal{S}} x_{n,s}(t)=R_n$，且 $x_{n,U}\bmod 10=0$、$x_{n,e}\bmod 5=0$、$x_{n,m}\bmod 2=0$。
+  \item 发射功率：$p_{0,s}(t)\in[10,40]$ dBm，$p_{n,s}(t)\in[10,30]$ dBm（$n\in\mathcal{N}$）。
+  \item 接入关联：$a_{n,k}(t)\in\{0,1\}$，$\sum\limits_{n\in\bar{\mathcal{N}}} a_{n,k}(t)\le 1$，且 $a_{n,k}(t)=0$ 若 $n\notin\{0,n^*(k)\}$。
+\end{itemize}
+
+跨十个窗口的总体优化模型：
+\begin{equation}
+\begin{aligned}
+\max\limits_{\{x,p,a\}}\quad & Q_{\text{total}}=\sum_{t\in\mathcal{T}}\Bigg[\sum_{k\in\mathcal{K}_U}\sum_{\tau\in\mathcal{A}_k(t)} y^{U}_{k,\tau}+\sum_{k\in\mathcal{K}_e}\sum_{\tau\in\mathcal{A}_k(t)} y^{e}_{k,\tau}+\sum_{k\in\mathcal{K}_m}\sum_{\tau\in\mathcal{A}_k(t)} y^{m}_{k,\tau}\Bigg] \\
+\text{s.t.}\quad & \sum_{s\in\mathcal{S}} x_{n,s}(t)=R_n,\ x_{n,U}(t)\bmod 10=0,\ x_{n,e}(t)\bmod 5=0,\ x_{n,m}(t)\bmod 2=0,\\
+& x_{n,s}(t)\in\mathbb{Z}_{\ge 0},\ \forall n\in\bar{\mathcal{N}},s\in\mathcal{S},t\in\mathcal{T},\\
+& 10\le p_{0,s}(t)\le 40,\ 10\le p_{n,s}(t)\le 30\ (n\in\mathcal{N}),\\
+& \sum_{n\in\bar{\mathcal{N}}} a_{n,k}(t)\le 1,\ a_{n,k}(t)=0\ \text{若 }n\notin\{0,n^*(k)\},\\
+& r_k(\tau),\ \gamma_k(\tau)\ \text{由}\ (x,p,a)\ \text{与}\ (\phi,h)\ \text{及调度生成},\\
+& Q_k(t+100)=\max\Big\{0,\ Q_k(t)+\sum_{\tau\in\mathcal{F}(t)} D_k(\tau)-S_k(t)\Big\},\ \forall k,t.
+\end{aligned}
+\end{equation}
+其中 $\mathcal{A}_k(t)\subseteq\mathcal{F}(t)$ 为窗口 $t$ 内属于用户 $k$ 且在 SLA 内完成的任务到达时刻集合。该模型体现了“跨层接入选择 + 多站切片 + 切片级功率 + SBS 间互扰 + 任务队列”的耦合，属于时变 MINLP。
+
+\subsection{模型求解}
+
+直接全局求解不可行。我们采用“\textbf{MPC（单步前瞻）+ 分层分解 + 迭代最优响应}”的实用策略，在每个决策窗口内求解当前 $100$ms 的近似最优策略、并将末状态传递给下一窗口。
+
+\paragraph{总体流程（逐窗口）}
+对每个窗口 $t\in\mathcal{T}$：
+\begin{enumerate}
+  \item 状态采样：读取 $\tau\in\mathcal{F}(t)$ 的 $\{\phi, h\}$ 与任务到达 $D(\tau)$，获取上窗末的队列 $Q(t)$ 与上一窗的$(x,p,a)$ 作为初始参考。
+  \item 关联初始化（跨层接入初判）：对每个用户 $k$，在“\,MBS 最小功率/当前 $x$ 近似\,”与“\,最近 SBS 最小功率/当前 $x$ 近似\,”下分别估计\,URLLC/eMBB\,的 SLA 可达性与 mMTC 的接入概率，择优设置 $a^{(0)}_{n,k}(t)$；若两者均不可达，对 eMBB/URLLC 选择更高速率一侧，对 mMTC 选择负载更低者。
+  \item 内层协调（给定 $a$，按基站分解 $x,p$）：
+  \begin{itemize}
+    \item MBS 子问题（无互扰，独立）：对 $x_{0,\cdot}(t)$ 枚举（满足 $R_0=100$ 与粒度约束），对 $p_{0,\cdot}(t)$ 采用粗网格搜索（如 $\{10,15,20,25,30,35,40\}$ dBm），逐个方案以 $1$ms 仿真评估窗口 QoS，取最优。
+    \item SBS 子问题（存在互扰，耦合）：采用\textbf{交替最优响应}（Block Coordinate Descent, BCD）。初始化 $x_{n,\cdot}(t),p_{n,\cdot}(t)$（可承接上窗或均匀切分）。循环若干轮：依次固定其余站的 $(x,p)$，对当前站 $n$ 在“$x$ 枚举 + $p$ 粗网格”下，仿真评估并更新最优；直至收敛或达到轮次上限（如 3 轮）。
+  \end{itemize}
+  \item 关联细化（在已得 $(x,p)$ 下微调 $a$）：对每个用户在其候选集合内（MBS 与最近 SBS）尝试切换，比较 QoS 边际收益与被选基站切片的并发占用影响（若新侧切片已满并发，施加惩罚），采用贪心或少量轮换匹配（如至多交换 5% 用户）提高总 QoS。
+  \item 输出窗口解：得到 $\{x_{n,s}(t),p_{n,s}(t),a_{n,k}(t)\}$，并以仿真末状态更新 $Q(t+100)$，进入下一窗口。
+\end{enumerate}
+
+\paragraph{复杂度与实现要点}
+\begin{itemize}
+  \item \textbf{枚举规模控制}：$x_{n,\cdot}(t)$ 的可行组合数有限（MBS 以 10/5/2 粒度划分 100RB，SBS 以 10/5/2 粒度划分 50RB），$p$ 采用 5--7 点粗网格。MBS 独立求解；SBS 经 BCD 将“同时组合爆炸”转化为“按站逐个改进”。
+  \item \textbf{并发与调度一致性}：切片并发 $C_{n,s}(t)$ 由 $x$ 决定，窗口内以 1ms 步长执行“编号靠前优先 + 任务完成即补位”的调度，精确记录每个任务的 $(\tau, t_{\text{start}})$ 与完成时刻，严格计算 $L$ 与 QoS。
+  \item \textbf{跨层隔离简化}：MBS 与 SBS 频谱隔离，使 MBS 子问题无互扰，且与 SBS 子问题仅通过 $a$（接入关联）耦合，利于分层求解与迭代收敛。
+  \item \textbf{热启动}：建议采用“承接上窗口解”作为初值，既加速收敛又提升稳定性；在业务态势缓变时尤为有效。
+\end{itemize}
+
+\subsection{结果分析}
+
+在不改变数据与评测口径的前提下，上述“MPC + 分层 + BCD + 细化接入”的策略具备如下预期：
+\begin{itemize}
+  \item \textbf{跨层负载分担}：当最近 SBS 对 eMBB/URLLC 的速率或时延不达标时，MBS 作为“高能小区”吸纳热点或边缘弱场景用户，保障 SLA；反之 mMTC 与近端 URLLC 倾向留在 SBS，提高频谱复用与连接密度。
+  \item \textbf{SBS 间干扰自洽}：通过 BCD 在切片粒度对 RB 区段与功率进行协调，降低跨站同索引 RB 的重叠度或在易干扰切片上选择更保守的功率，提升总体 SINR 与 QoS。
+  \item \textbf{时序一致性}：窗口内逐毫秒仿真与队列更新确保排队/传输时延与 mMTC 接入率的真实反映；结合上一窗热启动，决策轨迹平稳演化。
+\end{itemize}
+
+综上，本问的数学模型明确刻画了跨层接入、切片化 RB 分配、切片级功率控制与 SBS 干扰耦合，并以 MPC 框架下的分层-迭代最优响应给出可计算的近似最优解法，能在附件四提供的数据尺度上稳定运行并获得高 QoS 的资源调度策略。

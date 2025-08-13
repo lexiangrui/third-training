@@ -34,7 +34,7 @@ S_k(t) = r_k(t) \times 0.1 \times 10^{-6} \quad \text{(Mbit)}
 \end{equation}
 
 \textbf{(3) 队列更新：}
-任务按FIFO顺序服务，队列更新规则为：
+任务按FIFO（先进先出）顺序服务，队列更新规则为：
 \begin{equation}
 Q_k(t+100) = \max\left(0, Q_k(t) + \sum_{\tau=t+1}^{t+100} \text{TaskFlow}_k(\tau) - S_k(t)\right)
 \end{equation}
