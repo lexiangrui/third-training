@@ -5,6 +5,117 @@
 
 \subsection{模型建立}
 
+<<<<<<< HEAD
+=======
+\subsubsection{集合、索引与参数}
+
+为适配附件三的多微基站、同频复用且存在小区间干扰的场景，定义如下集合与索引：
+
+\begin{itemize}
+  \item 基站集合：$\mathcal{N}=\{1,2,3\}$（分别对应 BS1、BS2、BS3）。
+  \item 切片集合：$\mathcal{S}=\{U,e,m\}$，分别对应 URLLC、eMBB、mMTC。
+  \item 用户集合：$\mathcal{K}=\mathcal{K}_U\cup\mathcal{K}_e\cup\mathcal{K}_m$，其中 $\mathcal{K}_U=\{\mathrm{U1},\mathrm{U2}\}$，$\mathcal{K}_e=\{\mathrm{e1},\dots,\mathrm{e12}\}$，$\mathcal{K}_m=\{\mathrm{m1},\dots,\mathrm{m30}\}$。
+  \item 决策时刻集合：$\mathcal{T}=\{0,100,\dots,900\}$（单位 ms），每个决策窗口长度为 $100$ ms；窗口内以 $1$ ms 步长进行链路与队列仿真，记窗口内细粒度时刻集合为 $\mathcal{F}(t)=\{t,t+1,\dots,t+99\}$。
+\end{itemize}
+
+关键系统参数（与问题一、二保持一致）：
+
+\begin{itemize}
+  \item 每站可用 RB 总数 $R_{\text{tot}}=50$；单 RB 带宽 $b=360\,\mathrm{kHz}$；噪声系数 $NF=7\,\mathrm{dB}$；
+  \item 切片占用粒度：$i_U=10,\ i_e=5,\ i_m=2$（每个并发用户占用的 RB 数）；
+  \item 发射功率决策范围（第三问）：$p_{n,s}(t)\in[10,30]\,\mathrm{dBm}$，为“基站 $n$ 在窗口 $t$ 对切片 $s$ 的统一每 RB 功率”（切片内各 RB 功率一致）。
+\end{itemize}
+
+\subsubsection{信道与干扰模型}
+
+附件三提供了每 $1$ ms 的大规模损耗 $\phi_{n,k}(\tau)$（dB）与小规模瑞利衰落 $h_{n,k}(\tau)$。设窗口 $t\in\mathcal{T}$ 内细粒度时刻为 $\tau\in\mathcal{F}(t)$，若用户 $k\in\mathcal{K}_s$ 在窗口 $t$ 由基站 $n$ 服务且被分配切片 $s$ 的 RB，则其接收功率（mW）为
+\begin{equation}
+ p_{\mathrm{rx},n\to k}(\tau)=10^{\frac{p_{n,s}(t)-\phi_{n,k}(\tau)}{10}}\cdot |h_{n,k}(\tau)|^2.
+\end{equation}
+
+噪声功率与占用 RB 数 $i$ 成正比，换算为线性功率（mW）：
+\begin{equation}
+ N_0(i)=10^{\frac{-174+10\log_{10}(i\cdot b)+NF-30}{10}}.
+\end{equation}
+
+微基站同频复用引入同信道干扰。为保持“同一 RB 索引才互扰”的规则，我们令每站在窗口 $t$ 内将其 $50$ 个 RB 在频域上按切片连续划分且次序固定（例如 U-e-m），每个切片获得一段连续 RB 区间，跨站的相同 RB 索引构成同信道。于是用户 $k$ 的瞬时信干噪比为
+\begin{equation}
+ \gamma_k(\tau)=\frac{p_{\mathrm{rx},n\to k}(\tau)}{\sum\limits_{u\in\mathcal{N},\ u\neq n} I_{u\to k}(\tau)+N_0(i_s)},\quad s\in\mathcal{S},
+\end{equation}
+其中 $I_{u\to k}(\tau)$ 表示来自他站 $u$、在与 $k$ 所占 RB 索引重叠的切片 RB 上的干扰功率，按与上式相同的接收功率表达（由 $p_{u,s'}(t),\phi_{u,k}(\tau),h_{u,k}(\tau)$ 决定）。基于香农公式，窗口内瞬时速率为
+\begin{equation}
+ r_k(\tau)=i_s\cdot b\cdot \log_2\big(1+\gamma_k(\tau)\big)\quad(\mathrm{bps}).
+\end{equation}
+\subsubsection{任务队列动态演化模型}
+
+任务队列的动态演化过程与问题二完全一致，队列状态 $Q_k(t)$ 仍以每个用户为中心进行追踪，其演化遵循公式 \eqref{eq:queue_evolution}。
+
+关键区别在于，服务量 $S_k(t)$ 的计算变得更为复杂，因为它取决于用户 $k$ 在当前窗口 $t$ 接入了哪个基站 $n$，以及所有基站的功率决策 $\{p_{n,s}(t)\}$。这将在后续的服务质量评估函数中具体体现。
+
+
+\subsubsection{RB 切片并发与调度规则}
+
+令 $x_{n,s}(t)$ 为窗口 $t$ 时基站 $n$ 切片 $s$ 的 RB 数，满足 $\sum_{s\in\mathcal{S}}x_{n,s}(t)=R_{\text{tot}}$。切片 $s$ 的并发容量为
+\begin{equation}
+ C_{n,s}(t)=\big\lfloor x_{n,s}(t)/i_s\big\rfloor.
+\end{equation}
+窗口内采用“编号靠前优先”的串-并行调度：每个 $(n,s)$ 最多同时服务 $C_{n,s}(t)$ 个队头任务，任务完成即释放并补位。URLLC 在切片内可按紧迫度（距 SLA 的剩余时限）优先。
+
+\subsubsection{QoS 评估函数}
+
+与问题一、二一致，定义任务级 QoS：
+\begin{equation}
+ y^{U}_{k,\tau}=\begin{cases}
+ \alpha^{L^{U}_{k,\tau}} & L^{U}_{k,\tau}\le L^{\text{SLA}}_{U}\\
+ -M_U & \text{否则}
+ \end{cases},\quad
+ y^{e}_{k,\tau}=\begin{cases}
+ 1 & r_{k}(\tau_\text{srv})\ge r^{\text{SLA}}_{e}\ \&\ L^{e}_{k,\tau}\le L^{\text{SLA}}_{e}\\
+ \dfrac{r_{k}(\tau_\text{srv})}{r^{\text{SLA}}_{e}} & r_{k}(\tau_\text{srv})< r^{\text{SLA}}_{e}\ \&\ L^{e}_{k,\tau}\le L^{\text{SLA}}_{e}\\
+ -M_e & \text{否则}
+ \end{cases}
+\end{equation}
+\begin{equation}
+ y^{m}_{k,\tau}=\begin{cases}
+ \dfrac{\sum\limits_{i\in\mathcal{K}_m}c'_i}{\sum\limits_{i\in\mathcal{K}_m}c_i} & L^{\,m}_{k,\tau}\le L^{\text{SLA}}_{m}\\
+ -M_m & \text{否则}
+ \end{cases}
+\end{equation}
+其中 $L^{s}_{k,\tau}=Q_{k,\tau}+T_{k,\tau}$ 为任务总时延，$\tau_\text{srv}$ 为其被服务时段代表点；$c_i,c'_i$ 分别表示 mMTC 的“有任务/成功接入”标记。SLA 与惩罚参数同问题一中表述：$\alpha=0.95$，$r^{\text{SLA}}_e=50\,\mathrm{Mbps}$，$L^{\text{SLA}}_{U}=5\,\mathrm{ms}$，$L^{\text{SLA}}_{e}=100\,\mathrm{ms}$，$L^{\text{SLA}}_{m}=500\,\mathrm{ms}$，$M_U=5, M_e=3, M_m=1$。
+
+\subsubsection{决策变量与优化模型}
+
+决策变量：
+\begin{itemize}
+  \item RB 切片分配：$x_{n,s}(t)\in\mathbb{Z}_{\ge 0}$；
+  \item 发射功率：$p_{n,s}(t)\in[10,30]\,\mathrm{(dBm)}$；
+  \item 接入关联：$a_{n,k}(t)\in\{0,1\}$,若 $a_{n,k}(t)=1$ 则 $k$ 在窗口 $t$ 仅由站 $n$ 调度。
+\end{itemize}
+
+综合上述要素，第三问的动态联合优化模型可表述为（跨 10 个窗口聚合）：
+\begin{equation}
+\begin{aligned}
+\max_{\{x,p,a\}}\quad & Q_{\text{total}}=\sum_{t\in\mathcal{T}}\Bigg[\sum_{k\in\mathcal{K}_U}\sum_{\tau\in\mathcal{A}_k(t)} y^{U}_{k,\tau}+\sum_{k\in\mathcal{K}_e}\sum_{\tau\in\mathcal{A}_k(t)} y^{e}_{k,\tau}+\sum_{k\in\mathcal{K}_m}\sum_{\tau\in\mathcal{A}_k(t)} y^{m}_{k,\tau}\Bigg] \\
+\text{s.t.}\quad & 
+\left\{
+\begin{aligned}
+&\sum_{s\in\mathcal{S}} x_{n,s}(t)=50 \\
+&x_{n,U}(t)\bmod 10=0 ,x_{n,e}(t)\bmod 5=0 ,x_{n,m}(t)\bmod 2=0 \\
+&x_{n,s}(t)\in\mathbb{Z}_{\ge 0} \\
+&10\le p_{n,s}(t)\le 30\\
+&Q_k(t+100)=\max\Big\{0,\ Q_k(t)+\sum_{\tau\in\mathcal{F}(t)} D_k(\tau)-S_k(t)\Big\} \\
+&r_k(\tau),\ \gamma_k(\tau)\ \text{由}\ (x,p,a)\ \text{与}\ (\phi,h)\ \text{及调度生成} \\
+&\sum_{n\in\mathcal{N}} a_{n,k}(t)\le 1 \\
+&a_{n,k}(t)\in\{0,1\} \\
+&\forall n\in\mathcal{N},\ t\in\mathcal{T},\ \forall n,k,s,t
+\end{aligned}
+\right.
+\end{aligned}
+\end{equation}
+其中 $\mathcal{A}_k(t)\subseteq\mathcal{F}(t)$ 为窗口 $t$ 内属于用户 $k$ 且在 SLA 内完成的任务到达时刻集合；$r_k(\tau)$ 与 $S_k(t)$ 均受干扰耦合与调度影响，是 $(x,p,a)$ 的非线性函数。\\
+该模型体现了“多站同频干扰 + 切片化 RB 分配 + 切片级功率控制 + 任务队列”的耦合特性，属于带整数约束与非凸干扰项的时变 MINLP 问题。
+
+>>>>>>> origin/Zml
 \subsection{模型求解}
 
 \textbf{Step1：} 
