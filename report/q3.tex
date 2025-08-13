@@ -44,17 +44,12 @@
 \begin{equation}
  r_k(\tau)=i_s\cdot b\cdot \log_2\big(1+\gamma_k(\tau)\big)\quad(\mathrm{bps}).
 \end{equation}
+\subsubsection{任务队列动态演化模型}
 
-\subsubsection{任务到达与队列演化}
+任务队列的动态演化过程与问题二完全一致，队列状态 $Q_k(t)$ 仍以每个用户为中心进行追踪，其演化遵循公式 \eqref{eq:queue_evolution}。
 
-令 $D_{k}(\tau)\ge 0$ 表示 $1$ ms 时刻 $\tau$ 到达用户 $k$ 的任务数据量（Mbit，来自 taskflow 数据）。任务按 FIFO 服务。记 $Q_k(t)$ 为窗口起点 $t$ 的总排队量（Mbit）。若窗口 $t$ 内被服务的时隙集合为 $\mathcal{U}_k(t)\subseteq\mathcal{F}(t)$，则窗口内可传输的数据量为
-\begin{equation}
- S_k(t)=\sum_{\tau\in\mathcal{U}_k(t)} r_k(\tau)\cdot 10^{-6}\cdot 10^{-3}\quad(\mathrm{Mbit}),
-\end{equation}
-其中 $10^{-3}$ 将 $\mathrm{bps}$ 与 $1$ ms 时长换算为 bit，再以 $10^{-6}$ 换算为 Mbit。窗口结束时队列更新为
-\begin{equation}
- Q_k(t+100)=\max\Big\{0,\ Q_k(t)+\sum_{\tau\in\mathcal{F}(t)} D_k(\tau)-S_k(t)\Big\}.
-\end{equation}
+关键区别在于，服务量 $S_k(t)$ 的计算变得更为复杂，因为它取决于用户 $k$ 在当前窗口 $t$ 接入了哪个基站 $n$，以及所有基站的功率决策 $\{p_{n,s}(t)\}$。这将在后续的服务质量评估函数中具体体现。
+
 
 \subsubsection{RB 切片并发与调度规则}
 
@@ -91,8 +86,8 @@
 决策变量：
 \begin{itemize}
   \item RB 切片分配：$x_{n,s}(t)\in\mathbb{Z}_{\ge 0}$；
-  \item 发射功率：$p_{n,s}(t)\in[10,30]\,\mathrm{dBm}$；
-  \item 接入关联：$a_{n,k}(t)\in\{0,1\}$，$\sum\limits_{n\in\mathcal{N}}a_{n,k}(t)\le 1$；若 $a_{n,k}(t)=1$ 则 $k$ 在窗口 $t$ 仅由站 $n$ 调度。
+  \item 发射功率：$p_{n,s}(t)\in[10,30]\,\mathrm{(dBm)}$；
+  \item 接入关联：$a_{n,k}(t)\in\{0,1\}$,若 $a_{n,k}(t)=1$ 则 $k$ 在窗口 $t$ 仅由站 $n$ 调度。
 \end{itemize}
 
 综合上述要素，第三问的动态联合优化模型可表述为（跨 10 个窗口聚合）：
@@ -102,18 +97,21 @@
 \text{s.t.}\quad & 
 \left\{
 \begin{aligned}
-& \sum_{s\in\mathcal{S}} x_{n,s}(t)=50,\ \forall n\in\mathcal{N},\ t\in\mathcal{T}, \\
-& x_{n,U}(t)\bmod 10=0,\ x_{n,e}(t)\bmod 5=0,\ x_{n,m}(t)\bmod 2=0, \\
-& x_{n,s}(t)\in\mathbb{Z}_{\ge 0},\ \forall n,s,t, \\
-& 10\,\mathrm{dBm}\le p_{n,s}(t)\le 30\,\mathrm{dBm},\ \forall n,s,t, \\
-& \sum_{n\in\mathcal{N}} a_{n,k}(t)\le 1,\ a_{n,k}(t)\in\{0,1\},\ \forall k,t, \\
-& r_k(\tau),\ \gamma_k(\tau)\ \text{由}\ (x,p,a)\ \text{与}\ (\phi,h)\ \text{及调度生成}, \\
-& Q_k(t+100)=\max\Big\{0,\ Q_k(t)+\sum_{\tau\in\mathcal{F}(t)} D_k(\tau)-S_k(t)\Big\},\ \forall k,t.
+&\sum_{s\in\mathcal{S}} x_{n,s}(t)=50 \\
+&x_{n,U}(t)\bmod 10=0 ,x_{n,e}(t)\bmod 5=0 ,x_{n,m}(t)\bmod 2=0 \\
+&x_{n,s}(t)\in\mathbb{Z}_{\ge 0} \\
+&10\le p_{n,s}(t)\le 30\\
+&Q_k(t+100)=\max\Big\{0,\ Q_k(t)+\sum_{\tau\in\mathcal{F}(t)} D_k(\tau)-S_k(t)\Big\} \\
+&r_k(\tau),\ \gamma_k(\tau)\ \text{由}\ (x,p,a)\ \text{与}\ (\phi,h)\ \text{及调度生成} \\
+&\sum_{n\in\mathcal{N}} a_{n,k}(t)\le 1 \\
+&a_{n,k}(t)\in\{0,1\} \\
+&\forall n\in\mathcal{N},\ t\in\mathcal{T},\ \forall n,k,s,t
 \end{aligned}
 \right.
 \end{aligned}
 \end{equation}
-其中 $\mathcal{A}_k(t)\subseteq\mathcal{F}(t)$ 为窗口 $t$ 内属于用户 $k$ 且在 SLA 内完成的任务到达时刻集合；$r_k(\tau)$ 与 $S_k(t)$ 均受干扰耦合与调度影响，是 $(x,p,a)$ 的非线性函数。该模型体现了“多站同频干扰 + 切片化 RB 分配 + 切片级功率控制 + 任务队列”的耦合特性，属于带整数约束与非凸干扰项的时变 MINLP 问题。
+其中 $\mathcal{A}_k(t)\subseteq\mathcal{F}(t)$ 为窗口 $t$ 内属于用户 $k$ 且在 SLA 内完成的任务到达时刻集合；$r_k(\tau)$ 与 $S_k(t)$ 均受干扰耦合与调度影响，是 $(x,p,a)$ 的非线性函数。\\
+该模型体现了“多站同频干扰 + 切片化 RB 分配 + 切片级功率控制 + 任务队列”的耦合特性，属于带整数约束与非凸干扰项的时变 MINLP 问题。
 
 \subsection{模型求解}
 

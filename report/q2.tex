@@ -11,6 +11,12 @@
 
 \subsubsection{任务队列动态演化模型}
 
+为精确描述任务的动态变化，我们引入两个时间尺度：
+\begin{itemize}
+    \item \textbf{决策时刻 $t$}：每100ms进行一次资源分配决策，对应$t \in \{0, 100, 200, \ldots, 900\}$。
+    \item \textbf{仿真时刻 $\tau$}：以1ms为步长，用于模拟任务到达和信道变化，$\tau$表示具体的毫秒时刻。
+\end{itemize}
+
 定义用户$k$在时刻$t$的任务队列状态：
 
 \begin{itemize}
@@ -36,6 +42,7 @@ S_k(t) = r_k(t) \times 0.1 \times 10^{-6} \quad \text{(Mbit)}
 \textbf{(3) 队列更新：}
 任务按FIFO顺序服务，队列更新规则为：
 \begin{equation}
+\label{eq:queue_evolution}
 Q_k(t+100) = \max\left(0, Q_k(t) + \sum_{\tau=t+1}^{t+100} \text{TaskFlow}_k(\tau) - S_k(t)\right)
 \end{equation}
 
@@ -101,10 +108,11 @@ y_k^{m}(t) = \begin{cases}
 \begin{aligned}
 \max_{\{n_s(t)\}_{s,t}} \quad & Q_{\text{total}} = \sum_{t \in \mathcal{T}} \left[ \sum_{k \in \mathcal{U}_U} y_{k}^{U}(t) + \sum_{k \in \mathcal{U}_e} y_{k}^{e}(t) + \sum_{k \in \mathcal{U}_m} y_{k}^{m}(t) \right]\\
 \text{s.t.} \quad & \begin{cases}
- n_U(t) + n_e(t) + n_m(t) = 50, & \forall t \in \mathcal{T} \\
- n_U(t) \bmod 10 = 0,\; n_e(t) \bmod 5 = 0,\; n_m(t) \bmod 2 = 0, & \forall t \in \mathcal{T} \\
- Q_k(t+100) = \max\!\left(0, Q_k(t) + \Delta A_k(t) - S_k(t)\right), & \forall k,\; t \in \mathcal{T} \\
- n_s(t) \in \mathbb{Z}_{\ge 0}, & \forall s \in \mathcal{S},\; t \in \mathcal{T}
+ n_U(t) + n_e(t) + n_m(t) = 50\\
+ n_U(t) \bmod 10 = 0,\; n_e(t) \bmod 5 = 0,\; n_m(t) \bmod 2 = 0\\
+ Q_k(t+100) = \max\!\left(0, Q_k(t) + \Delta A_k(t) - S_k(t)\right) \\
+ n_s(t) \in \mathbb{Z}_{\ge 0}\\
+ \forall t \in \mathcal{T},\; \forall k,\; \forall s \in \mathcal{S}
  \end{cases}
  \end{aligned}
  \end{equation}
