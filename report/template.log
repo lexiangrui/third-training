@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2024.10.22)  13 AUG 2025 22:18
+This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2024.10.22)  14 AUG 2025 02:31
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1113,12 +1113,12 @@ LaTeX Font Info:    Calculating math sizes for size <12.05> on input line 9.
 LaTeX Font Warning: Font shape `TU/STSong(1)/b/n' undefined
 (Font)              using `TU/STSong(1)/m/n' instead on input line 167.
 
-[10]) (./q2.tex [11] [12] [13] [14] [15] [16]) (./q3.tex [17] [18] [19] [20]) (./q4.tex [21] [22] [23] [24]) (./template.bbl) [25]
+[10]) (./q2.tex [11] [12] [13] [14] [15] [16]) (./q3.tex [17] [18] [19] [20] [21]) (./q4.tex [22] [23] [24] [25] [26]) (./template.bbl) [27]
 
 Package caption Warning: Unused \captionsetup[sub] on input line 11.
 See the caption package documentation for explanation.
 
-[26] (./template.aux)
+[28] (./template.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2022/08/05>
@@ -1130,22 +1130,16 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 
-
-Package rerunfilecheck Warning: File `template.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `template.out':
-(rerunfilecheck)             Before: 4EE0F7024E1669E8B59424179BF865EF;9178
-(rerunfilecheck)             After:  348D53256FFB76EA9116859E609D00D8;9066.
+Package rerunfilecheck Info: File `template.out' has not changed.
+(rerunfilecheck)             Checksum: 4DF567EF02C74D26BF5BD5ED14E645B1;9452.
  ) 
 Here is how much of TeX's memory you used:
- 34546 strings out of 474773
- 736045 string characters out of 5757723
- 1944839 words of memory out of 5000000
- 56033 multiletter control sequences out of 15000+600000
+ 34547 strings out of 474773
+ 736061 string characters out of 5757723
+ 1945839 words of memory out of 5000000
+ 56034 multiletter control sequences out of 15000+600000
  579614 words of font info for 183 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 108i,19n,114p,472b,631s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 108i,19n,114p,472b,646s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on template.pdf (26 pages).
+Output written on template.pdf (28 pages).

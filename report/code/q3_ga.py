@@ -361,8 +361,8 @@ def simulate_window_multibs(env: Env,
     return states, res
 
 # =================== 遗传算法实现 ===================
-POP_SIZE = 40
-MAX_GEN = 200
+POP_SIZE = 50
+MAX_GEN = 500
 TOURN_K = 3
 CROSS_RATE = 0.8
 MUTATE_RATE = 0.3

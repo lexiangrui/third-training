@@ -419,8 +419,8 @@ def nearest_sbs_per_user(env: Env, users: List[str], t_ms: int) -> Dict[str, str
 
 # =================== 遗传算法 ===================
 
-POP_SIZE = 2
-MAX_GEN = 10
+POP_SIZE = 50
+MAX_GEN = 500
 TOURN_K = 3
 CROSS_RATE = 0.8
 MUTATE_RATE = 0.3
