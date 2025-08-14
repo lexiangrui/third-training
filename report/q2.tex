@@ -1,14 +1,27 @@
 \section{问题二的模型的建立和求解}
 \subsection{问题二的描述与分析}
 
-问题二考虑动态环境下的多时间段资源分配场景。与问题一的静态单时刻分配不同，问题二面临用户移动性、信道时变性以及任务队列动态变化的复杂问题。在1000ms的观测窗口内，系统需要每100ms进行一次资源分配决策（共10次），既要处理新到达的任务，又要考虑积压在排队队列中的历史任务。这是一个多阶段动态优化问题，需要在时间维度上综合考虑任务到达、信道变化和排队延迟的耦合影响。
+问题二考虑动态环境下的多时间段资源分配场景。与问题一的静态单时刻分配不同，问题二面临用户移动性、信道时变性以及任务队列动态变化的复杂问题。在 $T_{\mathrm{tot}}$ 的观测窗口内，系统需要每 $T_w$ 进行一次资源分配决策，既要处理新到达的任务，又要考虑积压在排队队列中的历史任务。这是一个多阶段动态优化问题，需要在时间维度上综合考虑任务到达、信道变化和排队延迟的耦合影响。
 
 \subsection{预备工作}
 
+\subsubsection{模型预测控制（MPC）简介}
+
+模型预测控制（Model Predictive Control, MPC）是一种先进的控制策略，广泛应用于工业控制、自动驾驶、机器人等领域。它通过预测未来系统的行为，优化当前的控制输入，从而实现对复杂系统的高效控制。
+
+\textbf{核心思想:}
+
+\textbf{基于模型的预测:}
+MPC利用系统的数学模型（如状态空间模型、传递函数等）预测未来一段时间内系统的输出行为。
+
+\textbf{滚动优化:}
+在每个时刻，MPC通过求解一个优化问题，找到未来一段时间的最优控制输入序列，使系统输出尽可能接近目标，同时满足约束条件。
+
+\textbf{反馈调整:}
+只执行当前时刻的控制输入，随后根据新的测量值更新预测，重复上述过程。这种滚动优化和反馈机制使MPC能够应对系统的不确定性和扰动。
 \subsection{模型建立}
 
-问题二模型大部分与问题一相同，不同之处在于问题二允许 $t$ 在决策窗口内按 $\mathcal{T}=\{0,100,\dots,900\}$ 演化，并引入任务到达与队列动态。为避免重复，问题二中与问题一中相同的定义与公式不再赘述。
-
+问题二模型大部分与问题一相同，可直接复用问题一中的模型，不再重复说明。不同之处在于问题二允许 $t$ 在决策窗口内按 $\mathcal{T}=\{0,100,\dots,900\}$ 演化，并引入任务到达与队列动态，下面将具体阐述。
 \subsubsection{任务队列动态演化模型}
 
 为精确描述任务的动态变化，我们引入两个时间尺度：
@@ -22,7 +35,6 @@
 \begin{itemize}
   \item $A_{k,\tau}(t)$：用户$k$在时刻$\tau$到达且在时刻$t$仍在队列中的任务数据量（Mbit）
   \item $Q_k(t) = \sum_{\tau=0}^{t} A_{k,\tau}(t)$：用户$k$在时刻$t$的总排队任务量
-  \item $W_k(t)$：用户$k$在时刻$t$已等待的排队时间
 \end{itemize}
 
 任务队列的动态演化遵循以下规律：
@@ -67,62 +79,62 @@ T_{k,\tau} = \frac{D_{k,\tau} \times 10^6}{r_k(t_{\text{start}})}
 L_{k,\tau}^s = Q_{k,\tau} + T_{k,\tau}, \quad s \in \{U, e, m\}
 \end{equation}
 
-\subsubsection{动态服务质量评估函数}
- 
-在多时间段场景下，各切片的QoS评估在问题一基础上作如下时间聚合：
 
-\textbf{(1) URLLC切片：}
-对于在时间窗口$[0, 1000]$ms内完成的所有URLLC任务：
-\begin{equation}
-y_{k,\tau}^{U} = \begin{cases}
-\alpha^{L_{k,\tau}^{U}} & \text{若 } L_{k,\tau}^{U} \leq L_{U}^{\text{SLA}} \\
--M_{U} & \text{若 } L_{k,\tau}^{U} > L_{U}^{\text{SLA}}
+\subsubsection{窗口内 QoS 计分规则}
+仅对“\textbf{在当前窗口内完成}”的 URLLC/eMBB 任务计分；mMTC 采用“\textbf{本窗到达用户的比例计分}”。令窗口 $t$ 的结束时刻为 $t+100$，定义集合：
+\begin{align}
+\mathcal{F}_U(t) &= \big\{(k,\tau_0)\mid k\in\mathcal{U}_U,\; \tau_f\in[t,\,t+T_w)\big\}, \\
+\mathcal{F}_e(t) &= \big\{(k,\tau_0)\mid k\in\mathcal{U}_e,\; \tau_f\in[t,\,t+T_w)\big\}.
+\end{align}
+
+\begin{align}
+Y_U(t) &= \sum_{(k,\tau_0)\in\mathcal{F}_U(t)} y_{k,\tau_0}^U, 
+\quad y_{k,\tau_0}^U =\begin{cases}
+\alpha^{L_{k,\tau_0}} & \text{若 } L_{k,\tau_0}\le L_U^{\text{SLA}} \\
+-M_U & \text{若 } L_{k,\tau_0}> L_U^{\text{SLA}}
 \end{cases}
-\end{equation}
+\end{align}
 
-\textbf{(2) eMBB切片：}
-对于在决策时刻$t$服务的eMBB用户$k$：
-\begin{equation}
-y_{k}^{e}(t) = \begin{cases}
-1 & \text{若 } r_k(t) \geq r_{e}^{\text{SLA}} \text{ 且 } L_{k,\tau}^{e} \leq L_{e}^{\text{SLA}} \\
-\frac{r_k(t)}{r_{e}^{\text{SLA}}} & \text{若 } r_k(t) < r_{e}^{\text{SLA}} \text{ 且 } L_{k,\tau}^{e} \leq L_{e}^{\text{SLA}} \\
--M_{e} & \text{若} L_{k,\tau}^{e} > L_{e}^{\text{SLA}}
+\begin{align}
+Y_e(t) &= \sum_{(k,\tau_0)\in\mathcal{F}_e(t)} y_{k,\tau_0}^e, 
+\quad y_{k,\tau_0}^e =\begin{cases}
+1 & \text{若 } L_{k,\tau_0}\le L_e^{\text{SLA}} \text{ 且 } r_{\mathrm{avg}}\ge r_e^{\text{SLA}} \\
+\dfrac{r_{\mathrm{avg}}}{r_e^{\text{SLA}}} & \text{若 } L_{k,\tau_0}\le L_e^{\text{SLA}} \text{ 且 } r_{\mathrm{avg}}<r_e^{\text{SLA}} \\
+-M_e & \text{若 } L_{k,\tau_0}> L_e^{\text{SLA}}
 \end{cases}
-\end{equation}
+\end{align}
 
-\textbf{(3) mMTC切片：}
-在每个决策时刻$t$，对每个mMTC用户$k$的QoS评估为：
-\begin{equation}
-y_k^{m}(t) = \begin{cases}
-\dfrac{\sum_{i \in \mathcal{U}_{m}} c_i'(t)}{\sum_{i \in \mathcal{U}_{m}} c_i(t)} & \text{若 } L_k^{m}(t) \le L_{m}^{\text{SLA}} \\
--M_{m} & \text{若 } L_k^{m}(t) > L_{m}^{\text{SLA}}
+\begin{align}
+Y_m(t) &= \sum_{k \in \mathcal{U}_m} y_k^m(t), 
+\quad y_k^m =\begin{cases}
+\dfrac{\sum_{i \in \mathcal{U}_{m}} c_i'}{\sum_{i \in \mathcal{U}_{m}} c_i} & \text{若 } L_k^{m} \le L_{m}^{\text{SLA}} \\
+-M_{m} & \text{若 } L_k^{m} > L_{m}^{\text{SLA}}
 \end{cases}
-\end{equation}
-其中，$c_i(t)$表示用户$i$在时刻$t$是否有待服务任务，$c_i'(t)$表示是否成功接入服务。
+\end{align}
 
-\subsubsection{多时间段优化模型}
- 
-基于上述分析，建立如下多时间段动态优化模型（目标在整个时间窗口跨$t$求和）：
 
+
+\subsubsection{总体优化模型}
+在上述定义下，问题二的动态优化模型写作：
 \begin{equation}
+\label{eq:q2_obj}
 \begin{aligned}
-\max_{\{n_s(t)\}_{s,t}} \quad & Q_{\text{total}} = \sum_{t \in \mathcal{T}} \left[ \sum_{k \in \mathcal{U}_U} y_{k}^{U}(t) + \sum_{k \in \mathcal{U}_e} y_{k}^{e}(t) + \sum_{k \in \mathcal{U}_m} y_{k}^{m}(t) \right]\\
+\max_{\{n_U(t),n_e(t),n_m(t)\}_{t\in\mathcal{T}}}\quad & Q=\sum_{t\in\mathcal{T}}\Big( Y_U(t)+Y_e(t)+Y_m(t) \Big) \\
 \text{s.t.} \quad & \begin{cases}
- n_U(t) + n_e(t) + n_m(t) = 50\\
- n_U(t) \bmod 10 = 0,\; n_e(t) \bmod 5 = 0,\; n_m(t) \bmod 2 = 0\\
- Q_k(t+100) = \max\!\left(0, Q_k(t) + \Delta A_k(t) - S_k(t)\right) \\
- n_s(t) \in \mathbb{Z}_{\ge 0}\\
- \forall t \in \mathcal{T},\;s \in \mathcal{S},\; \forall k
- \end{cases}
- \end{aligned}
- \end{equation}
-其中，$\mathcal{T} = \{0, 100, 200, \ldots, 900\}$为决策时刻集合，$n_s(t)$为时刻$t$分配给切片$s$的RB数量，$Q_k(t)$为用户$k$在时刻$t$的排队任务量，$\Delta A_k(t)$为时间段$[t, t+100)$内用户$k$的新增任务量。
+  n_U(t) + n_e(t) + n_m(t) = 50\\
+  n_U(t) \bmod 10 = 0,\; n_e(t) \bmod 5 = 0,\; n_m(t) \bmod 2 = 0\\
+  Q_k(t+100) = \max\!\left(0, Q_k(t) + \Delta A_k(t) - S_k(t)\right) \\
+  n_s(t) \in \mathbb{Z}_{\ge 0}\\
+  \forall t \in \mathcal{T},\;s \in \mathcal{S},\; \forall k
+  \end{cases}
+  \end{aligned}
+\end{equation}
 
-该模型的核心挑战在于：(1) 状态空间的指数级增长；(2) 任务到达的随机性与信道的时变性；(3) 排队时延与传输时延的耦合优化。需要设计高效的求解算法来处理这一复杂的多阶段随机优化问题。
+该模型的核心挑战在于：(1) 状态空间（用户队列）的动态演化导致各阶段决策相互耦合；(2) 任务到达的随机性与信道的时变性增加了预测难度；(3) 排队时延与传输时延的耦合优化关系复杂。需要设计高效的求解算法来处理这一复杂的多阶段动态优化问题。
 
 \subsection{模型求解}
 
-问题二是一个多阶段动态优化问题。由于状态空间（用户队列、信道状况）随时间演化，且任务到达具有随机性，精确求解该问题通常需要复杂的动态规划或强化学习方法，计算成本极高。考虑到决策周期较短，且需要快速响应，我们采用一种基于模型预测控制（Model Predictive Control, MPC）思想的贪心策略（Myopic Policy），也称为“单步前瞻优化”。该策略在每个决策窗口的起点，仅优化当前窗口的性能，而不考虑对未来窗口的长期影响。这种方法在实践中被证明是有效且计算可行的。
+通过以上对模型的分析，我们决定采用模型预测控制（Model Predictive Control, MPC）算法求解，该算法已在预备工作中简要介绍。
 
 算法的核心思想是：在每个决策时刻 $t \in \{0, 100, \dots, 900\}$，我们面对当前的系统状态（主要是各用户的任务队列），通过枚举所有可能的RB分配方案，并对每种方案进行精细化的仿真，来预测未来100ms内的系统服务质量。然后，我们选择能使当前窗口QoS最大化的方案进行实施，并将演化后的系统状态作为下一个决策时刻的初始条件。具体算法流程如下：
 
@@ -135,19 +147,9 @@ y_k^{m}(t) = \begin{cases}
 对于每个决策窗口 $w$（对应时间段 $[t, t+100)$，其中 $t = w \times 100$）：
 
 \begin{enumerate}
-    \item \textbf{生成RB分配方案}：与问题一类似，我们首先枚举所有满足约束条件的RB分配方案 $(n_U(t), n_e(t), n_m(t))$。确保资源总量为50，且每个切片的RB数量满足其最小占用粒度（URLLC为10的倍数，eMBB为5的倍数，mMTC为2的倍数）。
+    \item \textbf{生成RB分配方案}：与问题一类似，枚举所有满足约束条件的RB分配方案 $(n_U(t), n_e(t), n_m(t))$，确保资源总量为50，且各切片RB数量分别为10、5、2的倍数。
 
-    \item \textbf{窗口内调度仿真与评估}：对于每一个生成的RB分配方案，我们执行一次为期100ms的详细仿真，以评估其性能。
-    \begin{itemize}
-        \item \textbf{初始状态}：仿真从当前决策时刻 $t$ 的系统状态开始，包括所有用户当前的排队任务。
-        \item \textbf{动态演化}：在100ms的仿真窗口内，我们以1ms为步长进行演化：
-        \begin{itemize}
-            \item \textbf{任务到达}：根据附件二的数据，在每个1ms时刻，将新到达的任务加入对应用户的队列。
-            \item \textbf{调度与服务}：根据当前切片的并发容量 $C_s = \lfloor n_s(t) / v_s \rfloor$，采用“编号靠前优先”的原则，为有任务排队的用户分配服务信道。正在服务的用户将根据其在当前ms的信道质量计算出的速率来处理任务。
-            \item \textbf{资源释放与接续}：当一个用户的任务完成时，其占用的并发槽位被立即释放。调度器会立刻检查该切片内是否有其他排队的用户（同样按编号顺序），若有则立即接续服务。
-        \end{itemize}
-        \item \textbf{性能计算}：在仿真过程中，我们精确记录每个任务的到达、开始服务和完成的时刻，从而计算其端到端时延。对于在当前100ms窗口内完成的每一个任务，我们根据其所属切片的服务质量评估函数计算QoS得分。
-    \end{itemize}
+    \item \textbf{窗口内调度仿真与评估}：对于每个分配方案，进行100ms窗口的详细仿真。仿真从当前系统状态出发，1ms步长推进，动态加入新到达任务，按切片并发能力和“编号靠前优先”原则调度用户，任务完成后立即释放资源并接续新用户。全过程记录任务的到达、服务、完成时刻，计算端到端时延，并据各切片QoS评估函数统计窗口内所有已完成任务的服务质量得分。
     
     \item \textbf{选择最优方案并更新状态}：遍历所有RB分配方案后，我们选择在当前窗口内获得累计QoS总分最高的方案作为本次决策的结果。然后，我们将该最优方案对应的仿真结束时刻（$t+100$）的用户队列状态，作为下一个决策窗口的初始状态。
 \end{enumerate}
@@ -190,40 +192,7 @@ y_k^{m}(t) = \begin{cases}
 
 在整个仿真周期内，各切片累计获得的QoS分数分别为：URLLC QoS合计\textbf{205.8175}，eMBB QoS合计\textbf{46.2854}，mMTC QoS合计\textbf{100.0000}。
 
-\subsubsection{并列最优解分析}
 
-值得注意的是，在多个决策窗口中，算法发现了多个能够达到相同最优QoS的RB分配方案。这为网络运营商提供了在满足性能目标的同时，根据其他策略（如能耗、资源均衡等）进行选择的灵活性。下表列出了部分存在并列最优解的决策时刻及其方案。
-
-\begin{table}[H]
-\centering
-\caption{部分决策窗口的并列最优方案}
-\label{tab:q2_tie_solutions}
-\begin{tabular}{ccc}
-\hline
-\textbf{决策时刻 (ms)} & \textbf{窗口最优QoS} & \textbf{并列最优RB分配方案 ($n_U, n_e, n_m$)} \\
-\hline
-\multirow{3}{*}{300} & \multirow{3}{*}{32.800} & (10, 0, 40) \\
- & & (20, 0, 30) \\
- & & (30, 0, 20) \\
-\hline
-\multirow{3}{*}{400} & \multirow{3}{*}{31.850} & (20, 0, 30) \\
- & & (30, 0, 20) \\
- & & (40, 0, 10) \\
-\hline
-\multirow{3}{*}{600} & \multirow{3}{*}{27.100} & (10, 0, 40) \\
- & & (20, 0, 30) \\
- & & (30, 0, 20) \\
-\hline
-\multirow{2}{*}{900} & \multirow{2}{*}{27.100} & (20, 0, 30) \\
- & & (30, 0, 20) \\
-\hline
-\end{tabular}
-\end{table}
-
-\begin{itemize}
-    \item \textbf{动态适应性}：从资源分配序列（表 \ref{tab:q2_decision_sequence}）可以看出，算法展现了良好的动态适应性。在仿真初期（0-300ms），eMBB业务有大量任务到达，算法明智地为其分配了20个RB以快速处理，获得了较高的QoS。在300ms后，eMBB任务队列清空，算法果断地将其RB资源完全回收，转而分配给URLLC和mMTC，以应对后续的URLLC任务并保证mMTC的稳定接入。
-    \item \textbf{资源分配的灵活性}：如表 \ref{tab:q2_tie_solutions} 所示，从300ms开始，系统中出现了大量的并列最优解。这些方案的共同点是都放弃了为eMBB分配资源（因为其队列已空），而将资源在URLLC和mMTC之间进行权衡。例如在300ms时，(10, 0, 40), (20, 0, 30), (30, 0, 20)三种方案都能达到相同的最优QoS。这表明在满足核心性能指标后，资源配置具有相当的灵活性。运营商可以根据长期策略选择更偏向URLLC（保障未来可能的高优先级任务）或更偏向mMTC（扩大连接容量）的方案。
-    \item \textbf{切片性能分析}：URLLC切片的所有任务均在远低于SLA（5ms）的时延内完成，获得了很高的QoS分数。eMBB切片在前期获得了足够的资源，其QoS贡献主要来自前300ms。mMTC切片由于其“尽力而为”和高并发的特性，在整个周期内稳定地获得了满分的QoS。这说明我们采用的MPC贪心策略成功地平衡了三类业务的需求。
-\end{itemize}
+从资源分配序列（表 \ref{tab:q2_decision_sequence}）可以看出，算法展现了良好的动态适应性。在仿真初期（0-300ms），eMBB业务有大量任务到达，算法明智地为其分配了20个RB以快速处理，获得了较高的QoS。在300ms后，eMBB任务队列清空，算法果断地将其RB资源完全回收，转而分配给URLLC和mMTC，以应对后续的URLLC任务并保证mMTC的稳定接入。
 
 综上所述，我们提出的动态资源分配模型与求解算法，能够在时变的信道和任务到达条件下，做出快速有效的决策，实现了系统在整个时间窗口内总服务质量的最优。
