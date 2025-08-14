@@ -1,29 +1,11 @@
 \section{问题四的模型的建立和求解}
 \subsection{问题四的描述与分析}
 
-本问引入宏基站（Macro BS, 记作 MBS）与多个微基站（Small BS, 记作 SBS）的异构蜂窝网络：MBS 具备更充裕的频谱资源且覆盖广；SBS 负责边缘热点的增强覆盖。题设指出 MBS 与所有 SBS 采用\textbf{不重叠频谱}，因此\textbf{跨层无干扰}；但各 SBS 之间\textbf{同频复用}，存在相互干扰。系统每 $100$ms 进行一次联合决策，周期内以 $1$ms 进行仿真演化。与第三问相比，第四问新增了跨层接入模式决策：\textbf{每个用户要么接入最近的 SBS，要么接入 MBS}（SBS 的选择被限定为“最近微站”）。
-
-资源与功率设定：MBS 拥有 $100$ 个 RB，功率范围 $[10,40]$ dBm；每个 SBS 拥有 $50$ 个 RB，功率范围 $[10,30]$ dBm。三类切片的 RB 占用粒度与 SLA 约束与前几问一致（URLLC/eMBB/mMTC 分别占用 $10/5/2$ 个 RB，并满足表中速率/时延/SLA/惩罚系数约束）。附件四提供了 $1000$ms 窗口内各用户任务到达与位置、MBS 与各 SBS 的大/小规模衰落时序数据，支撑逐毫秒的链路与队列仿真。
-
-本问是一个“跨层接入 + 多站切片 + 切片级功率控制 + 队列与 SLA 约束 + SBS 间干扰耦合”的时变混合整数非凸优化问题（MINLP）。为保持可计算性，下文给出一致化的符号体系、精确的数学建模与可操作的分层求解策略。
-
-\subsection{预备工作}
-
-\subsubsection{集合、索引与参数}
-
-\begin{itemize}
-  \item 基站集合：$\bar{\mathcal{N}}=\{0\}\cup\mathcal{N}$，其中 $0$ 表示 MBS，$\mathcal{N}=\{1,2,\dots,N_s\}$ 表示 SBS 集合（附件四为三站示例：$N_s=3$）。
-  \item 切片集合：$\mathcal{S}=\{U,e,m\}$，分别对应 URLLC/eMBB/mMTC。
-  \item 用户集合：$\mathcal{K}=\mathcal{K}_U\cup\mathcal{K}_e\cup\mathcal{K}_m$。
-  \item 决策时刻集合：$\mathcal{T}=\{0,100,\dots,900\}$（单位 ms）；窗口内细粒度时刻集合：$\mathcal{F}(t)=\{t,t+1,\dots,t+99\}$。
-  \item RB 总数：$R_0=100$（MBS），$R_n=50$（$n\in\mathcal{N}$，SBS）。单 RB 带宽 $b=360\,\mathrm{kHz}$，噪声系数 $NF=7\,\mathrm{dB}$。
-  \item 切片占用粒度：$i_U=10,\ i_e=5,\ i_m=2$（每个\textbf{并发}用户占用的 RB 数）。
-  \item 发射功率范围：$p_{0,s}(t)\in[10,40]$ dBm（MBS），$p_{n,s}(t)\in[10,30]$ dBm（SBS，$n\in\mathcal{N}$），为“基站 $n$ 在窗口 $t$ 对切片 $s$ 的统一每 RB 功率”。
-\end{itemize}
-
-附件四提供 $\phi_{n,k}(\tau)$（dB, 大规模损耗）、$h_{n,k}(\tau)$（瑞利小尺度）与任务到达序列 $D_k(\tau)$。决策窗口内按 $1$ms 时间步精确计算链路与服务过程。
+本问引入宏基站（Macro BS, 记作 MBS）与多个微基站（Small BS, 记作 SBS）的异构蜂窝网络：MBS 具备更充裕的频谱资源且覆盖广；SBS 负责边缘热点的增强覆盖。题设指出 MBS 与所有 SBS 采用不重叠频谱，因此跨层无干扰；但各 SBS 之间同频复用，存在相互干扰。
+本问是一个“跨层接入 + 多站切片 + 切片级功率控制 + 队列与 SLA 约束 + SBS 间干扰耦合”的时变混合整数非凸优化问题（MINLP）。经过分析，上一问的模型框架在本问中得以延续，但需针对异构网络的特性进行调整。
 
 \subsection{模型建立}
+本问的模型延续之前的内容，但需要对信道与干扰模型、接入与调度规则、决策变量等进行调整，以适应宏基站与微基站的异构网络结构，相同的模型不再重复。
 
 \subsubsection{信道与干扰模型}
 
@@ -48,18 +30,6 @@
  r_k(\tau)=i_s\cdot b\cdot \log_2\big(1+\gamma_k(\tau)\big)
 \end{equation}
 
-\subsubsection{任务到达与队列演化}
-
-本部分关于任务到达、队列演化的数学模型与前几问保持一致，但其核心变量——服务量 $S_k(t)$ 的计算，现在深度耦合了第四问新增的跨层接入决策与异构网络干扰环境。
-
-令 $D_k(\tau)\ge 0$ 表示 $1$ms 时刻 $\tau$ 到达用户 $k$ 的任务数据量（Mbit，来自 taskflow 数据）。任务按 FIFO 服务。记窗口起点的队列为 $Q_k(t)$。若窗口 $t$ 内被服务的时隙集合为 $\mathcal{U}_k(t)\subseteq\mathcal{F}(t)$，则窗口内可传输的数据量为
-\begin{equation}
- S_k(t)=\sum_{\tau\in\mathcal{U}_k(t)} r_k(\tau)\cdot 10^{-6}\cdot 10^{-3}\quad(\mathrm{Mbit}).
-\end{equation}
-窗口结束时队列更新为
-\begin{equation}
- Q_k(t+100)=\max\Big\{0,\ Q_k(t)+\sum_{\tau\in\mathcal{F}(t)} D_k(\tau)-S_k(t)\Big\}.
-\end{equation}
 
 \subsubsection{接入与调度规则}
 
@@ -68,34 +38,6 @@
   \item \textbf{接入限制}：这是本问的核心特征。每个用户 $k$ 的接入选择被严格限定在宏基站（MBS）与地理位置最近的微基站（SBS）之间，即 $a_{n,k}(t)=1$ 仅在 $n=0$ 或 $n=n^*(k)$ 时才可能成立。
   \item \textbf{并发与调度}：各基站（MBS与SBS）的切片并发容量 $C_{n,s}(t)$ 的计算方式，以及窗口内“编号优先、任务完成即补位、URLLC按紧迫度优先”的调度机制，与前文保持一致。
 \end{itemize}
-
-\subsubsection{QoS 评估函数}
-
-与前几问一致，服务质量（QoS）的评估基于每个任务的时延和速率表现。
-
-首先，我们需要计算每个任务的总时延。对一个在时刻 $\tau$ 到达的任务，其总时延 $L^{s}_{k,\tau}$ 由排队时延和传输时延构成：
-\begin{equation}
-    L^{s}_{k,\tau} = (t_{\text{start}} - \tau) + \frac{D_{k,\tau} \cdot 10^6}{\bar{r}_k(t_{\text{start}})}
-\end{equation}
-其中，$t_{\text{start}}$ 是任务开始服务的时刻，$\bar{r}_k(t_{\text{start}})$ 是服务期间的平均速率。
-
-然后，基于计算出的时延和瞬时速率，我们定义任务级的 QoS 函数 $y^{s}_{k,\tau}$：
-\begin{align}
- y^{U}_{k,\tau} &= \begin{cases}
- \alpha^{L^{U}_{k,\tau}} & L^{U}_{k,\tau}\le L^{\text{SLA}}_{U}\\
- -M_U & \text{否则}
- \end{cases} \\
-y^{e}_{k,\tau} &= \begin{cases}
- 1 & r_{k}(\tau_\text{srv})\ge r^{\text{SLA}}_{e}\ \text{and}\ L^{e}_{k,\tau}\le L^{\text{SLA}}_{e}\\
- \dfrac{r_{k}(\tau_\text{srv})}{r^{\text{SLA}}_{e}} & r_{k}(\tau_\text{srv})< r^{\text{SLA}}_{e}\ \text{and}\ L^{e}_{k,\tau}\le L^{\text{SLA}}_{e}\\
- -M_e & \text{否则}
- \end{cases} \\
- y^{m}_{k,\tau} &= \begin{cases}
- \dfrac{\sum\limits_{i\in\mathcal{K}_m}c'_i}{\sum\limits_{i\in\mathcal{K}_m}c_i} & L^{\,m}_{k,\tau}\le L^{\text{SLA}}_{m}\\
- -M_m & \text{否则}
- \end{cases}
-\end{align}
-参数取值：$\alpha=0.95$，$r^{\text{SLA}}_e=50\,\mathrm{Mbps}$，$L^{\text{SLA}}_{U}=5\,\mathrm{ms}$，$L^{\text{SLA}}_{e}=100\,\mathrm{ms}$，$L^{\text{SLA}}_{m}=500\,\mathrm{ms}$，$M_U=5, M_e=3, M_m=1$。
 
 \subsubsection{决策变量与优化模型}
 
@@ -108,8 +50,12 @@ y^{e}_{k,\tau} &= \begin{cases}
 综合上述要素，第四问的动态联合优化模型可表述为（跨 10 个窗口聚合）：
 \begin{equation}
 \begin{aligned}
-\max\limits_{\{x,p,a\}}\quad & Q_{\text{total}}=\sum_{t\in\mathcal{T}}\Bigg[\sum_{k\in\mathcal{K}_U}\sum_{\tau\in\mathcal{A}_k(t)} y^{U}_{k,\tau}+\sum_{k\in\mathcal{K}_e}\sum_{\tau\in\mathcal{A}_k(t)} y^{e}_{k,\tau}+\sum_{k\in\mathcal{K}_m}\sum_{\tau\in\mathcal{A}_k(t)} y^{m}_{k,\tau}\Bigg] \\
-\text{s.t.}\quad &
+\max\limits_{\{x,p,a\}}\quad & Q_{\text{total}}=\sum_{t\in\mathcal{T}}\Bigg[\sum_{k\in\mathcal{K}_U}\sum_{\tau\in\mathcal{A}_k(t)} y^{U}_{k,\tau}+\sum_{k\in\mathcal{K}_e}\sum_{\tau\in\mathcal{A}_k(t)} y^{e}_{k,\tau}+\sum_{k\in\mathcal{K}_m}\sum_{\tau\in\mathcal{A}_k(t)} y^{m}_{k,\tau}\Bigg] 
+\end{aligned}
+\end{equation}
+
+\begin{equation}
+\text{s.t.}\quad 
 \left\{
 \begin{aligned}
 & \sum_{s\in\mathcal{S}} x_{n,s}(t)=R_n\\
@@ -122,7 +68,6 @@ y^{e}_{k,\tau} &= \begin{cases}
 & \forall n\in\bar{\mathcal{N}},s\in\mathcal{S},t\in\mathcal{T},\ \forall k,t
 \end{aligned}
 \right.
-\end{aligned}
 \end{equation}
 其中 $\mathcal{A}_k(t)\subseteq\mathcal{F}(t)$ 为窗口 $t$ 内属于用户 $k$ 且在 SLA 内完成的任务到达时刻集合。\\
 该模型体现了“跨层接入选择 + 多站切片 + 切片级功率 + SBS 间互扰 + 任务队列”的耦合，属于时变 MINLP。
@@ -156,3 +101,40 @@ y^{e}_{k,\tau} &= \begin{cases}
 \end{itemize}
 
 \subsection{结果分析}
+我们采用上一节提出的“滚动MPC+GA”方法对问题四进行了求解，得到了10个决策窗口内每个基站的资源块（RB）分配、切片功率以及用户接入策略。详细的数值结果记录在代码附录的 \texttt{q4\_user\_bs\_mapping.csv} 和 \texttt{q4\_window\_results.csv} 文件中。本节将对这些结果进行分析。
+
+\subsubsection{总体性能与动态适应性}
+在1000ms的仿真周期内，我们所提出的算法实现了 \textbf{834.02} 的总服务质量（QoS）得分。每个窗口的详细QoS得分、资源和功率分配决策汇总于表~\ref{tab:q4_results}。
+
+\begin{table}[htbp]
+  \centering
+  \caption{问题四各窗口资源分配决策与QoS结果（部分）}
+  \label{tab:q4_results}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{c|ccc|ccc|ccc|ccc|c}
+    \toprule
+    \textbf{Win} & \multicolumn{3}{c|}{\textbf{MBS\_1 (RB/P(dBm))}} & \multicolumn{3}{c|}{\textbf{SBS\_1 (RB/P(dBm))}} & \multicolumn{3}{c|}{\textbf{SBS\_2 (RB/P(dBm))}} & \multicolumn{3}{c|}{\textbf{QoS}} & \textbf{Obj.} \\
+    \cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10} \cmidrule(lr){11-13}
+     & \textbf{U} & \textbf{E} & \textbf{M} & \textbf{U} & \textbf{E} & \textbf{M} & \textbf{U} & \textbf{E} & \textbf{M} & \textbf{U} & \textbf{E} & \textbf{M} & \\
+    \midrule
+    0 & 30/25.1 & 40/23.8 & 30/24.6 & 20/24.6 & 20/25.8 & 10/25.0 & 20/25.0 & 0/27.8 & 30/26.2 & 93.42 & 14.26 & 40.00 & 147.68 \\
+    1 & 30/25.7 & 0/25.2 & 70/26.9 & 0/25.5 & 0/27.5 & 50/24.1 & 30/25.9 & 0/22.3 & 20/24.0 & 85.68 & 0.00 & 40.00 & 125.68 \\
+    2 & 50/25.8 & 0/24.1 & 50/22.9 & 0/28.1 & 0/26.0 & 50/23.3 & 0/19.9 & 0/26.8 & 50/25.1 & 64.61 & 0.00 & 40.00 & 104.61 \\
+    3 & 0/22.5 & 0/22.7 & 100/23.3 & 30/21.0 & 0/24.7 & 20/21.1 & 30/26.4 & 0/21.9 & 20/25.7 & 50.85 & 0.00 & 40.00 & 90.85 \\
+    4 & 0/24.9 & 0/24.8 & 100/27.8 & 0/25.5 & 0/29.2 & 50/21.0 & 30/23.7 & 0/25.9 & 20/24.1 & 43.16 & 0.00 & 40.00 & 83.16 \\
+    5 & 0/21.2 & 0/26.5 & 100/25.9 & 30/30.0 & 0/25.9 & 20/23.1 & 30/25.6 & 0/24.7 & 20/27.0 & 50.27 & 0.00 & 40.00 & 90.27 \\
+    6 & 0/22.0 & 0/29.6 & 100/22.4 & 20/25.8 & 0/24.9 & 30/24.1 & 30/27.6 & 0/22.2 & 20/25.5 & 47.51 & 0.00 & 40.00 & 87.51 \\
+    7 & 0/27.4 & 0/24.9 & 100/29.0 & 20/26.3 & 0/28.5 & 30/20.9 & 30/25.1 & 0/29.4 & 20/26.5 & 48.32 & 0.00 & 34.10 & 82.42 \\
+    8 & 0/23.2 & 0/22.8 & 100/26.9 & 10/24.2 & 0/21.9 & 40/29.4 & 20/23.8 & 0/26.8 & 30/23.9 & 19.48 & 0.00 & 10.03 & 29.50 \\
+    9 & 0/22.3 & 0/23.9 & 100/29.8 & 30/22.3 & 0/25.6 & 20/26.0 & 50/23.9 & 0/28.4 & 0/29.3 & 11.74 & 0.00 & -19.38 & -7.64 \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}
+
+从表~\ref{tab:q4_results}可以看出，算法在不同时间窗口展现出高度的动态适应性。
+\subsubsection{宏基站与微基站的协同策略}
+\begin{itemize}
+    \item \textbf{宏基站（MBS）的角色}：MBS拥有100个RB和更高的功率上限（40dBm），且无干扰，是网络中的“定海神针”。算法倾向于利用MBS来处理大规模、可容忍一定时延的业务。从窗口1到9，MBS几乎将全部资源投入到mMTC切片，确保了mMTC业务在大多数窗口都能拿到满分（40分），这体现了利用MBS广覆盖、大容量优势来满足海量连接的策略。
+    \item \textbf{微基站（SBS）的角色}：SBS资源有限（50个RB）且存在同频干扰，但其部署更靠近用户，能提供更好的信道条件。算法主要利用SBS来保障对时延和速率要求苛刻的业务。例如，在窗口3，当MBS全力服务mMTC时，三个SBS协同为URLLC用户提供了总计80个RB的资源，有效保障了高优先级业务的QoS。此外，SBS的功率控制也十分灵活，例如在窗口5，SBS\_1为URLLC切片输出了30dBm的满功率，以对抗干扰、确保可靠性。
+\end{itemize}

@@ -1,14 +1,9 @@
 \section{问题五的模型的建立和求解}
 \subsection{问题五的描述与分析}
 
-本问在第四问的异构网络场景和QoS评估框架基础上，引入了基站的能耗模型，旨在探索在保障用户服务质量的同时，实现网络能耗的最小化。这是一个典型的多目标优化问题，要求我们在最大化QoS和最小化能耗这两个相互冲突的目标之间找到最佳平衡。
-
-根据题目“能耗最低的同时能够达到最大的用户服务质量”的描述，我们理解这是一个具有明确优先级顺序的目标：首先应尽可能降低能耗，然后在低能耗的方案中选择能够最大化QoS的策略。为此，我们设计了一个两阶段的优化求解框架。
+本问在第四问的异构网络场景和QoS评估框架基础上，引入了基站的能耗模型，旨在探索网络能耗的最小化的基础上，保障用户服务质量。这是一个典型的两阶段多目标优化问题。为此，我们设计了一个两阶段的优化求解框架。
 
 \subsection{预备工作}
-
-\subsubsection{集合、索引与参数}
-
 本问的集合、索引与大部分参数均与第四问保持一致。
 \begin{itemize}
     \item 基站集合：$\bar{\mathcal{N}}=\{0\}\cup\mathcal{N}$，其中 $0$ 表示 MBS，$\mathcal{N}=\{1,2,3\}$ 表示 SBS 集合。
@@ -45,41 +40,47 @@ E_{total}(t) = \int_{t}^{t+T_w} P_{total}(\tau) d\tau
 
 \subsubsection{两阶段优化模型}
 
-为实现“优先最小化能耗，再最大化QoS”的目标，我们将原问题分解为两个 последовательных (sequential) 的子问题，在每个决策窗口 $t \in \mathcal{T}$ 内依次求解。
+为实现“优先最小化能耗，再最大化QoS”的目标，我们将原问题分解为两个独立的子问题，在每个决策窗口 $t \in \mathcal{T}$ 内依次进行优化。该方法的核心思想是，首先在满足基本通信需求的前提下，确定最优的节能功率配置；然后在此功率配置下，通过精细化的资源块（RB）分配来最大化用户服务质量（QoS）。
 
 \paragraph{第一阶段：能耗最小化}
-此阶段的目标是找到一组切片功率分配方案 $\{p_{n,s}(t)\}$，使得在固定的接入和RB分配策略下，窗口内的总能耗 $E_{total}(t)$ 最小。
-\begin{itemize}
-    \item \textbf{固定接入策略}：为简化模型，所有用户均接入距离其最近的基站（MBS或SBS），记为 $a_{n,k}(t) = a_{nearest, k}(t)$。
-    \item \textbf{固定RB分配策略}：为保证基础通信能力，各基站的RB资源在不同业务切片间进行均衡分配，记为 $x_{n,s}(t) = x_{equal, n,s}$。
-\end{itemize}
-该阶段的优化模型表述为：
+此阶段的核心目标是，在用户接入和RB分配策略固定的情况下，通过调整各基站各切片的发射功率，找到使得窗口总能耗 $E_{total}(t)$ 最小的功率分配方案 $\{p_{n,s}(t)\}$。
+该阶段的优化模型可表述为：
 \begin{equation}
 \begin{aligned}
-\min_{\{p_{n,s}(t)\}} \quad & E_{total}(t; \{p_{n,s}(t)\}) \\
-\text{s.t.} \quad & p_{min, n} \le p_{n,s}(t) \le p_{max, n}, \quad \forall n \in \bar{\mathcal{N}}, s \in \mathcal{S}
+\min_{\{p_{n,s}(t)\}} \quad & E_{total}\left(t; \{p_{n,s}(t)\}\right) \\
+\text{s.t.} \quad & 
+\left\{
+\begin{aligned}
+& 10 \le p_{0,s}(t) \le 40, \quad \forall s \in \mathcal{S} \\
+& 10 \le p_{n,s}(t) \le 30, \quad \forall n \in \mathcal{N}, s \in \mathcal{S}
+\end{aligned}
+\right.
 \end{aligned}
 \end{equation}
 决策变量仅为各基站各切片的发射功率 $p_{n,s}(t)$。
-
 \paragraph{第二阶段：QoS最大化}
-在第一阶段得到的最优功率分配方案 $p^*_{n,s}(t)$ 的基础上，此阶段通过优化RB切片分配 $\{x_{n,s}(t)\}$ 来最大化全网用户的总服务质量 $Q_{total}(t)$。
-\begin{itemize}
-    \item \textbf{固定功率策略}：采用第一阶段优化得到的功率 $p_{n,s}(t) = p^*_{n,s}(t)$。
-    \item \textbf{固定接入策略}：同样为最近基站接入 $a_{n,k}(t) = a_{nearest, k}(t)$。
-\end{itemize}
+在第一阶段得到最优功率分配方案 $p^*_{n,s}(t)$ 后，此阶段的目标是在此节能功率配置下，通过优化RB的切片划分方案 $\{x_{n,s}(t)\}$，来最大化全网用户的总服务质量 $Q_{total}(t)$。
 该阶段的优化模型表述为：
 \begin{equation}
 \begin{aligned}
-\max_{\{x_{n,s}(t)\}} \quad & Q_{total}(t; \{x_{n,s}(t)\}) \\
-\text{s.t. 第四问的所有约束条件}  
+\max_{\{x_{n,s}(t)\}} \quad & Q_{total}\left(t; \{x_{n,s}(t)\}, \{p^*_{n,s}(t)\}\right) \\
+\text{s.t.} \quad & 
+\left\{
+\begin{aligned}
+& \sum_{s\in\mathcal{S}} x_{n,s}(t) = R_n, \quad \forall n \in \bar{\mathcal{N}} \\
+& x_{n,U}(t)\bmod 10=0, \quad \forall n \in \bar{\mathcal{N}} \\
+& x_{n,e}(t)\bmod 5=0, \quad \forall n \in \bar{\mathcal{N}} \\
+& x_{n,m}(t)\bmod 2=0, \quad \forall n \in \bar{\mathcal{N}} \\
+& x_{n,s}(t)\in\mathbb{Z}_{\ge 0}, \quad \forall n \in \bar{\mathcal{N}}, s \in \mathcal{S}
+\end{aligned}
+\right.
 \end{aligned}
 \end{equation}
-决策变量为各基站为不同业务切片分配的RB数量 $x_{n,s}(t)$，它必须满足总数约束和相应切片的粒度约束。
+决策变量为各基站为不同业务切片分配的RB数量 $x_{n,s}(t)$。目标函数 $Q_{total}$ 的评估方式与第四问一致，均通过动态仿真得出，但此时是在给定的节能功率模式下进行。
 
 \subsection{模型求解}
 
-我们延续“滚动时域控制(MPC)”框架，在每个100ms的窗口内，依次执行上述两阶段优化。
+我们延续“滚动时域控制(MPC)”框架，结合第二问的枚举仿真和第三四问的遗传算法，在每个100ms的窗口内，依次执行上述两阶段优化。
 
 \paragraph{第一阶段求解：遗传算法 (GA)}
 由于能耗与功率之间存在复杂的非线性关系，且其评估依赖于精细的动态仿真，我们采用遗传算法（GA）求解第一阶段的功率优化问题。
@@ -89,8 +90,45 @@ E_{total}(t) = \int_{t}^{t+T_w} P_{total}(\tau) d\tau
     \item \textbf{遗传算子}：采用锦标赛选择、算术交叉和高斯扰动变异。
 \end{itemize}
 
-\paragraph{第二阶段求解：枚举}
+\paragraph{第二阶段求解：枚举仿真}
 该阶段方法与第二问大致相同，区别在于第四问开始增加了宏基站，在枚举时需要同时考虑宏基站和微基站的RB分配。
 
 \subsection{结果分析}
+我们采用上一节提出的两阶段优化方法对问题五进行了求解。在1000ms的总仿真时长内，实现了 \textbf{183.68 J} 的总能耗，以及 \textbf{428.60} 的总服务质量（QoS）得分。每个决策窗口的详细结果汇总于表~\ref{tab:q5_results}。
+
+\begin{table}[htbp]
+  \centering
+  \caption{问题五各窗口资源分配决策与性能结果}
+  \label{tab:q5_results}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{c|ccc|ccc|c|c}
+    \toprule
+    \textbf{Win} & \multicolumn{3}{c|}{\textbf{MBS\_1 (RB/P(dBm))}} & \multicolumn{3}{c|}{\textbf{SBS\_1 (RB/P(dBm))}} & \textbf{QoS} & \textbf{Energy (J)} \\
+    \cmidrule(lr){2-4} \cmidrule(lr){5-7}
+     & \textbf{U} & \textbf{E} & \textbf{M} & \textbf{U} & \textbf{E} & \textbf{M} & & \\
+    \midrule
+    0 & 0/23.9 & 0/27.1 & 100/25.1 & 10/14.9 & 10/10.0 & 30/10.0 & 95.75 & 19.68 \\
+    1 & 0/27.8 & 0/21.1 & 100/17.6 & 0/21.8 & 0/10.0 & 50/10.0 & 72.13 & 18.10 \\
+    2 & 0/27.9 & 0/24.5 & 100/25.6 & 0/18.7 & 0/10.0 & 50/10.0 & 40.37 & 18.12 \\
+    3 & 0/29.1 & 0/25.6 & 100/27.0 & 0/17.8 & 0/10.0 & 50/10.0 & 92.88 & 18.25 \\
+    4 & 0/23.8 & 0/20.5 & 100/32.0 & 0/10.0 & 0/10.0 & 50/10.0 & 61.77 & 17.97 \\
+    5 & 0/25.2 & 0/30.8 & 100/18.2 & 0/10.0 & 0/10.0 & 50/10.0 & 83.54 & 18.10 \\
+    6 & 0/26.8 & 0/25.6 & 100/23.2 & 0/10.0 & 10/10.0 & 40/10.0 & 13.49 & 19.48 \\
+    7 & 0/21.0 & 0/24.9 & 100/34.7 & 0/10.0 & 0/10.0 & 50/10.0 & 3.64 & 18.09 \\
+    8 & 0/26.6 & 0/24.4 & 100/25.0 & 0/10.0 & 0/10.0 & 50/10.0 & -11.53 & 17.84 \\
+    9 & 0/29.2 & 0/31.5 & 100/35.9 & 0/10.0 & 0/10.0 & 50/10.0 & -23.45 & 18.05 \\
+    \bottomrule
+  \end{tabular}%
+  }
+  \footnotesize{\\注：表格仅展示了MBS\_1和SBS\_1的决策，完整决策见附录代码输出。}
+\end{table}
+
+\subsubsection{节能策略分析}
+第一阶段的GA优化展现了智能的功率控制策略以实现节能：
+\begin{itemize}
+    \item \textbf{功率的精细化控制}：与问题四中功率普遍较高的设定不同，本问中的功率分配显示出极大的差异性。例如，在窗口0，SBS\_1为eMBB和mMTC切片仅分配了10.0dBm的最低功率，而在窗口5，MBS为eMBB切片分配了高达30.8dBm的功率。这表明算法并非简单地“一刀切”式降低所有功率，而是根据不同切片、不同基站的信道和业务情况，有选择地、精细地调整功率，以最小的能耗代价满足基本通信需求。
+    \item \textbf{向低功耗基站/切片倾斜}：在固定RB分配下，GA倾向于为信道条件好的用户（通常离基站近）分配较低的功率，而为信道条件差的用户分配较高的功率，以保证所有用户的基本连通性。同时，对于非关键业务或负载较轻的切片，算法会果断采用最低功率策略，从而最大化节能效果。
+\end{itemize}
+
+综上，本问提出的两阶段优化框架成功地实现了在保障基本服务的前提下最小化网络能耗的目标。结果清晰地量化了能耗与服务质量之间的权衡关系，并验证了通过精细化功率控制实现节能的有效性。
 

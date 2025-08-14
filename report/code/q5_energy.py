@@ -403,8 +403,8 @@ def nearest_sbs_per_user(env: Env, users: List[str], t_ms: int) -> Dict[str, str
 
 
 # GA 参数（阶段一：功率最小化）
-POP_SIZE = 24
-MAX_GEN = 80
+POP_SIZE = 20
+MAX_GEN = 200
 TOURN_K = 3
 CROSS_RATE = 0.8
 MUTATE_RATE = 0.3

@@ -1,0 +1,195 @@
+=== Problem 5 GA-MPC (QoS then Energy) Run Log === 2025-08-14 17:11:58.435496
+加载完成：用户数=70, BS=4，每窗口评估≈4000
+
+== 窗口 0~100 ms ==
+  [P-Gen   1] estE=18.791J, bestE=18.791J, fit=-1.879e+01
+  [P-Gen  20] estE=18.201J, bestE=18.201J, fit=-1.820e+01
+  [P-Gen  40] estE=17.859J, bestE=17.859J, fit=-1.786e+01
+  [P-Gen  60] estE=17.757J, bestE=17.757J, fit=-1.776e+01
+  [P-Gen  80] estE=17.696J, bestE=17.696J, fit=-1.770e+01
+  [P-Gen 100] estE=17.660J, bestE=17.660J, fit=-1.766e+01
+  [P-Gen 120] estE=17.635J, bestE=17.635J, fit=-1.763e+01
+  [P-Gen 140] estE=17.631J, bestE=17.631J, fit=-1.763e+01
+  [P-Gen 160] estE=17.630J, bestE=17.630J, fit=-1.763e+01
+  [P-Gen 180] estE=17.630J, bestE=17.630J, fit=-1.763e+01
+  [P-Gen 200] estE=17.630J, bestE=17.630J, fit=-1.763e+01
+窗口 0: QoS=95.7513, Energy=19.675 J (after enumeration)
+  方案（功率先行、枚举RB）：
+    MBS_1: RB(U,E,M)=(0,0,100), P(U,E,M)=(23.9,27.1,25.0) dBm
+    SBS_1: RB(U,E,M)=(10,10,30), P(U,E,M)=(14.9,10.0,10.0) dBm
+    SBS_2: RB(U,E,M)=(30,0,20), P(U,E,M)=(16.0,10.0,10.0) dBm
+    SBS_3: RB(U,E,M)=(0,10,40), P(U,E,M)=(10.0,10.0,10.0) dBm
+
+== 窗口 100~200 ms ==
+  [P-Gen   1] estE=19.688J, bestE=19.688J, fit=-1.969e+01
+  [P-Gen  20] estE=19.027J, bestE=19.027J, fit=-1.903e+01
+  [P-Gen  40] estE=18.687J, bestE=18.687J, fit=-1.869e+01
+  [P-Gen  60] estE=18.553J, bestE=18.553J, fit=-1.855e+01
+  [P-Gen  80] estE=18.481J, bestE=18.481J, fit=-1.848e+01
+  [P-Gen 100] estE=18.470J, bestE=18.470J, fit=-1.847e+01
+  [P-Gen 120] estE=18.470J, bestE=18.470J, fit=-1.847e+01
+  [P-Gen 140] estE=18.470J, bestE=18.470J, fit=-1.847e+01
+  [P-Gen 160] estE=18.469J, bestE=18.469J, fit=-1.847e+01
+  [P-Gen 180] estE=18.469J, bestE=18.469J, fit=-1.847e+01
+  [P-Gen 200] estE=18.469J, bestE=18.469J, fit=-1.847e+01
+窗口 100: QoS=72.1340, Energy=18.098 J (after enumeration)
+  方案（功率先行、枚举RB）：
+    MBS_1: RB(U,E,M)=(0,0,100), P(U,E,M)=(27.8,21.1,17.6) dBm
+    SBS_1: RB(U,E,M)=(0,0,50), P(U,E,M)=(21.8,10.0,10.0) dBm
+    SBS_2: RB(U,E,M)=(30,0,20), P(U,E,M)=(17.9,10.0,10.0) dBm
+    SBS_3: RB(U,E,M)=(0,0,50), P(U,E,M)=(10.0,10.0,10.0) dBm
+
+== 窗口 200~300 ms ==
+  [P-Gen   1] estE=21.132J, bestE=21.132J, fit=-2.113e+01
+  [P-Gen  20] estE=20.219J, bestE=20.219J, fit=-2.022e+01
+  [P-Gen  40] estE=19.810J, bestE=19.810J, fit=-1.981e+01
+  [P-Gen  60] estE=19.617J, bestE=19.617J, fit=-1.962e+01
+  [P-Gen  80] estE=19.515J, bestE=19.515J, fit=-1.952e+01
+  [P-Gen 100] estE=19.479J, bestE=19.479J, fit=-1.948e+01
+  [P-Gen 120] estE=19.470J, bestE=19.470J, fit=-1.947e+01
+  [P-Gen 140] estE=19.469J, bestE=19.469J, fit=-1.947e+01
+  [P-Gen 160] estE=19.468J, bestE=19.468J, fit=-1.947e+01
+  [P-Gen 180] estE=19.467J, bestE=19.467J, fit=-1.947e+01
+  [P-Gen 200] estE=19.467J, bestE=19.467J, fit=-1.947e+01
+窗口 200: QoS=40.3694, Energy=18.124 J (after enumeration)
+  方案（功率先行、枚举RB）：
+    MBS_1: RB(U,E,M)=(0,0,100), P(U,E,M)=(27.9,24.5,25.6) dBm
+    SBS_1: RB(U,E,M)=(0,0,50), P(U,E,M)=(18.7,10.0,10.0) dBm
+    SBS_2: RB(U,E,M)=(30,0,20), P(U,E,M)=(19.7,10.0,10.0) dBm
+    SBS_3: RB(U,E,M)=(0,0,50), P(U,E,M)=(10.0,10.0,10.0) dBm
+
+== 窗口 300~400 ms ==
+  [P-Gen   1] estE=21.173J, bestE=21.173J, fit=-2.117e+01
+  [P-Gen  20] estE=20.406J, bestE=20.406J, fit=-2.041e+01
+  [P-Gen  40] estE=20.013J, bestE=20.013J, fit=-2.001e+01
+  [P-Gen  60] estE=19.879J, bestE=19.879J, fit=-1.988e+01
+  [P-Gen  80] estE=19.796J, bestE=19.796J, fit=-1.980e+01
+  [P-Gen 100] estE=19.754J, bestE=19.754J, fit=-1.975e+01
+  [P-Gen 120] estE=19.752J, bestE=19.752J, fit=-1.975e+01
+  [P-Gen 140] estE=19.751J, bestE=19.751J, fit=-1.975e+01
+  [P-Gen 160] estE=19.751J, bestE=19.751J, fit=-1.975e+01
+  [P-Gen 180] estE=19.751J, bestE=19.751J, fit=-1.975e+01
+  [P-Gen 200] estE=19.751J, bestE=19.751J, fit=-1.975e+01
+窗口 300: QoS=92.8818, Energy=18.255 J (after enumeration)
+  方案（功率先行、枚举RB）：
+    MBS_1: RB(U,E,M)=(0,0,100), P(U,E,M)=(29.1,25.6,27.0) dBm
+    SBS_1: RB(U,E,M)=(0,0,50), P(U,E,M)=(17.8,10.0,10.0) dBm
+    SBS_2: RB(U,E,M)=(20,0,30), P(U,E,M)=(17.0,10.0,10.0) dBm
+    SBS_3: RB(U,E,M)=(0,0,50), P(U,E,M)=(10.0,10.0,10.0) dBm
+
+== 窗口 400~500 ms ==
+  [P-Gen   1] estE=21.097J, bestE=21.097J, fit=-2.110e+01
+  [P-Gen  20] estE=20.284J, bestE=20.284J, fit=-2.028e+01
+  [P-Gen  40] estE=19.851J, bestE=19.851J, fit=-1.985e+01
+  [P-Gen  60] estE=19.623J, bestE=19.623J, fit=-1.962e+01
+  [P-Gen  80] estE=19.514J, bestE=19.514J, fit=-1.951e+01
+  [P-Gen 100] estE=19.472J, bestE=19.472J, fit=-1.947e+01
+  [P-Gen 120] estE=19.470J, bestE=19.470J, fit=-1.947e+01
+  [P-Gen 140] estE=19.470J, bestE=19.470J, fit=-1.947e+01
+  [P-Gen 160] estE=19.470J, bestE=19.470J, fit=-1.947e+01
+  [P-Gen 180] estE=19.470J, bestE=19.470J, fit=-1.947e+01
+  [P-Gen 200] estE=19.470J, bestE=19.470J, fit=-1.947e+01
+窗口 400: QoS=61.7675, Energy=17.969 J (after enumeration)
+  方案（功率先行、枚举RB）：
+    MBS_1: RB(U,E,M)=(0,0,100), P(U,E,M)=(23.8,20.5,32.0) dBm
+    SBS_1: RB(U,E,M)=(0,0,50), P(U,E,M)=(10.0,10.0,10.0) dBm
+    SBS_2: RB(U,E,M)=(30,0,20), P(U,E,M)=(20.7,10.0,10.0) dBm
+    SBS_3: RB(U,E,M)=(0,0,50), P(U,E,M)=(10.0,10.0,10.0) dBm
+
+== 窗口 500~600 ms ==
+  [P-Gen   1] estE=21.382J, bestE=21.382J, fit=-2.138e+01
+  [P-Gen  20] estE=20.494J, bestE=20.494J, fit=-2.049e+01
+  [P-Gen  40] estE=19.925J, bestE=19.925J, fit=-1.993e+01
+  [P-Gen  60] estE=19.661J, bestE=19.661J, fit=-1.966e+01
+  [P-Gen  80] estE=19.599J, bestE=19.599J, fit=-1.960e+01
+  [P-Gen 100] estE=19.580J, bestE=19.580J, fit=-1.958e+01
+  [P-Gen 120] estE=19.580J, bestE=19.580J, fit=-1.958e+01
+  [P-Gen 140] estE=19.579J, bestE=19.579J, fit=-1.958e+01
+  [P-Gen 160] estE=19.579J, bestE=19.579J, fit=-1.958e+01
+  [P-Gen 180] estE=19.579J, bestE=19.579J, fit=-1.958e+01
+  [P-Gen 200] estE=19.579J, bestE=19.579J, fit=-1.958e+01
+窗口 500: QoS=83.5397, Energy=18.103 J (after enumeration)
+  方案（功率先行、枚举RB）：
+    MBS_1: RB(U,E,M)=(0,0,100), P(U,E,M)=(25.2,30.8,18.2) dBm
+    SBS_1: RB(U,E,M)=(0,0,50), P(U,E,M)=(10.0,10.0,10.0) dBm
+    SBS_2: RB(U,E,M)=(30,0,20), P(U,E,M)=(24.6,10.0,10.0) dBm
+    SBS_3: RB(U,E,M)=(0,0,50), P(U,E,M)=(10.0,10.0,10.0) dBm
+
+== 窗口 600~700 ms ==
+  [P-Gen   1] estE=21.450J, bestE=21.450J, fit=-2.145e+01
+  [P-Gen  20] estE=20.316J, bestE=20.316J, fit=-2.032e+01
+  [P-Gen  40] estE=19.997J, bestE=19.997J, fit=-2.000e+01
+  [P-Gen  60] estE=19.744J, bestE=19.744J, fit=-1.974e+01
+  [P-Gen  80] estE=19.624J, bestE=19.624J, fit=-1.962e+01
+  [P-Gen 100] estE=19.576J, bestE=19.576J, fit=-1.958e+01
+  [P-Gen 120] estE=19.554J, bestE=19.554J, fit=-1.955e+01
+  [P-Gen 140] estE=19.554J, bestE=19.554J, fit=-1.955e+01
+  [P-Gen 160] estE=19.553J, bestE=19.553J, fit=-1.955e+01
+  [P-Gen 180] estE=19.553J, bestE=19.553J, fit=-1.955e+01
+  [P-Gen 200] estE=19.553J, bestE=19.553J, fit=-1.955e+01
+窗口 600: QoS=13.4938, Energy=19.479 J (after enumeration)
+  方案（功率先行、枚举RB）：
+    MBS_1: RB(U,E,M)=(0,0,100), P(U,E,M)=(26.8,25.6,23.2) dBm
+    SBS_1: RB(U,E,M)=(0,10,40), P(U,E,M)=(10.0,10.0,10.0) dBm
+    SBS_2: RB(U,E,M)=(30,10,10), P(U,E,M)=(19.5,10.0,10.0) dBm
+    SBS_3: RB(U,E,M)=(0,10,40), P(U,E,M)=(10.0,10.0,10.0) dBm
+
+== 窗口 700~800 ms ==
+  [P-Gen   1] estE=21.249J, bestE=21.249J, fit=-2.125e+01
+  [P-Gen  20] estE=20.347J, bestE=20.347J, fit=-2.035e+01
+  [P-Gen  40] estE=19.884J, bestE=19.884J, fit=-1.988e+01
+  [P-Gen  60] estE=19.693J, bestE=19.693J, fit=-1.969e+01
+  [P-Gen  80] estE=19.618J, bestE=19.618J, fit=-1.962e+01
+  [P-Gen 100] estE=19.572J, bestE=19.572J, fit=-1.957e+01
+  [P-Gen 120] estE=19.571J, bestE=19.571J, fit=-1.957e+01
+  [P-Gen 140] estE=19.570J, bestE=19.570J, fit=-1.957e+01
+  [P-Gen 160] estE=19.570J, bestE=19.570J, fit=-1.957e+01
+  [P-Gen 180] estE=19.570J, bestE=19.570J, fit=-1.957e+01
+  [P-Gen 200] estE=19.570J, bestE=19.570J, fit=-1.957e+01
+窗口 700: QoS=3.6422, Energy=18.087 J (after enumeration)
+  方案（功率先行、枚举RB）：
+    MBS_1: RB(U,E,M)=(0,0,100), P(U,E,M)=(21.0,24.9,34.7) dBm
+    SBS_1: RB(U,E,M)=(0,0,50), P(U,E,M)=(10.0,10.0,10.0) dBm
+    SBS_2: RB(U,E,M)=(30,0,20), P(U,E,M)=(18.7,10.0,10.0) dBm
+    SBS_3: RB(U,E,M)=(0,0,50), P(U,E,M)=(10.0,10.0,10.0) dBm
+
+== 窗口 800~900 ms ==
+  [P-Gen   1] estE=20.992J, bestE=20.992J, fit=-2.099e+01
+  [P-Gen  20] estE=20.132J, bestE=20.132J, fit=-2.013e+01
+  [P-Gen  40] estE=19.684J, bestE=19.684J, fit=-1.968e+01
+  [P-Gen  60] estE=19.403J, bestE=19.403J, fit=-1.940e+01
+  [P-Gen  80] estE=19.322J, bestE=19.322J, fit=-1.932e+01
+  [P-Gen 100] estE=19.291J, bestE=19.291J, fit=-1.929e+01
+  [P-Gen 120] estE=19.289J, bestE=19.289J, fit=-1.929e+01
+  [P-Gen 140] estE=19.289J, bestE=19.289J, fit=-1.929e+01
+  [P-Gen 160] estE=19.289J, bestE=19.289J, fit=-1.929e+01
+  [P-Gen 180] estE=19.289J, bestE=19.289J, fit=-1.929e+01
+  [P-Gen 200] estE=19.289J, bestE=19.289J, fit=-1.929e+01
+窗口 800: QoS=-11.5330, Energy=17.843 J (after enumeration)
+  方案（功率先行、枚举RB）：
+    MBS_1: RB(U,E,M)=(0,0,100), P(U,E,M)=(26.6,24.4,25.0) dBm
+    SBS_1: RB(U,E,M)=(0,0,50), P(U,E,M)=(10.0,10.0,10.0) dBm
+    SBS_2: RB(U,E,M)=(30,0,20), P(U,E,M)=(20.7,10.0,10.0) dBm
+    SBS_3: RB(U,E,M)=(0,0,50), P(U,E,M)=(10.0,10.0,10.0) dBm
+
+== 窗口 900~1000 ms ==
+  [P-Gen   1] estE=21.095J, bestE=21.095J, fit=-2.109e+01
+  [P-Gen  20] estE=20.245J, bestE=20.245J, fit=-2.024e+01
+  [P-Gen  40] estE=19.886J, bestE=19.886J, fit=-1.989e+01
+  [P-Gen  60] estE=19.705J, bestE=19.705J, fit=-1.970e+01
+  [P-Gen  80] estE=19.581J, bestE=19.581J, fit=-1.958e+01
+  [P-Gen 100] estE=19.538J, bestE=19.538J, fit=-1.954e+01
+  [P-Gen 120] estE=19.537J, bestE=19.537J, fit=-1.954e+01
+  [P-Gen 140] estE=19.537J, bestE=19.537J, fit=-1.954e+01
+  [P-Gen 160] estE=19.537J, bestE=19.537J, fit=-1.954e+01
+  [P-Gen 180] estE=19.537J, bestE=19.537J, fit=-1.954e+01
+  [P-Gen 200] estE=19.537J, bestE=19.537J, fit=-1.954e+01
+窗口 900: QoS=-23.4513, Energy=18.052 J (after enumeration)
+  方案（功率先行、枚举RB）：
+    MBS_1: RB(U,E,M)=(0,0,100), P(U,E,M)=(29.2,31.5,35.9) dBm
+    SBS_1: RB(U,E,M)=(0,0,50), P(U,E,M)=(10.0,10.0,10.0) dBm
+    SBS_2: RB(U,E,M)=(30,0,20), P(U,E,M)=(20.3,10.0,10.0) dBm
+    SBS_3: RB(U,E,M)=(0,0,50), P(U,E,M)=(10.0,10.0,10.0) dBm
+已保存窗口结果 -> /Users/lexiangrui/Desktop/训三/report/code/q5_window_results.csv
+
+== 总QoS ≈ 428.5954, 总能耗 ≈ 183.683 J ==
