@@ -106,7 +106,7 @@
 \subsubsection{总体性能与动态适应性}
 在1000ms的仿真周期内，我们所提出的算法实现了 \textbf{834.02} 的总服务质量（QoS）得分。每个窗口的详细QoS得分、资源和功率分配决策汇总于表~\ref{tab:q4_results}。
 
-\begin{table}[htbp]
+\begin{table}[H]
   \centering
   \caption{问题四各窗口资源分配决策与QoS结果（部分）}
   \label{tab:q4_results}
@@ -134,6 +134,14 @@
 
 从表~\ref{tab:q4_results}可以看出，算法在不同时间窗口展现出高度的动态适应性。
 \subsubsection{宏基站与微基站的协同策略}
+根据题目要求用户只能接入MBS或距离其最近的SBS，通过求解，我们得到了用户接入基站决策，如图\ref{fig:q4_user_bs_mapping}所示。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/第四问结果可视化.pdf}
+    \caption{第四问用户接入可视化}
+    \label{fig:q4_user_bs_mapping}
+\end{figure}
+
 \begin{itemize}
     \item \textbf{宏基站（MBS）的角色}：MBS拥有100个RB和更高的功率上限（40dBm），且无干扰，是网络中的“定海神针”。算法倾向于利用MBS来处理大规模、可容忍一定时延的业务。从窗口1到9，MBS几乎将全部资源投入到mMTC切片，确保了mMTC业务在大多数窗口都能拿到满分（40分），这体现了利用MBS广覆盖、大容量优势来满足海量连接的策略。
     \item \textbf{微基站（SBS）的角色}：SBS资源有限（50个RB）且存在同频干扰，但其部署更靠近用户，能提供更好的信道条件。算法主要利用SBS来保障对时延和速率要求苛刻的业务。例如，在窗口3，当MBS全力服务mMTC时，三个SBS协同为URLLC用户提供了总计80个RB的资源，有效保障了高优先级业务的QoS。此外，SBS的功率控制也十分灵活，例如在窗口5，SBS\_1为URLLC切片输出了30dBm的满功率，以对抗干扰、确保可靠性。

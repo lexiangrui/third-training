@@ -104,9 +104,9 @@
 \subsubsection{求解流程}
 本算法采用“滚动时窗预测控制”框架，将1000ms划分为10个独立的100ms优化窗口。每个窗口内，利用遗传算法（GA）进行静态资源分配优化，简要流程如图~\ref{fig:flow_q3}所示。
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
-  %\includesvg[width=0.95\textwidth]{q3_flowchart.svg}
+  \includegraphics[width=0.9\textwidth]{figures/第三问算法.pdf}
   \caption{问题三“滚动 MPC + GA”求解流程图}
   \label{fig:flow_q3}
 \end{figure}
@@ -117,7 +117,7 @@
 \subsubsection{总体性能与动态适应性}
 在1000ms的仿真周期内，我们所提出的算法实现了 \textbf{871.34} 的总服务质量（QoS）得分。每个窗口的详细QoS得分、资源和功率分配决策汇总于表~\ref{tab:q3_results}。
 
-\begin{table}[htbp]
+\begin{table}[H]
   \centering
   \caption{问题三各窗口资源分配决策与QoS结果}
   \label{tab:q3_results}
@@ -142,8 +142,17 @@
   \end{tabular}%
   }
 \end{table}
-
 结果显示，算法能够根据每个窗口变化的信道条件和任务到达情况，动态调整资源分配策略。
+\subsubsection{用户接入策略}
+程序在每次决策时，会根据当前信道条件和任务到达情况，选择一个基站为用户提供服务。
+图~\ref{fig:q3_first_window_vis} 展示了第一次决策窗口内用户接入与资源分配的可视化结果。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/第一次决策可视化.pdf}
+    \caption{第一次决策窗口用户接入可视化}
+    \label{fig:q3_first_window_vis}
+\end{figure}
+
 \subsubsection{切片资源分配与干扰管理策略}
 遗传算法在每个窗口内搜索“用户接入+RB分配+功率控制”的联合最优解，其分配策略体现了对不同切片QoS需求的深刻理解和对干扰的精细化控制。
 \begin{itemize}

@@ -137,6 +137,12 @@ Y_m(t) &= \sum_{k \in \mathcal{U}_m} y_k^m(t),
 通过以上对模型的分析，我们决定采用模型预测控制（Model Predictive Control, MPC）算法求解，该算法已在预备工作中简要介绍。
 
 算法的核心思想是：在每个决策时刻 $t \in \{0, 100, \dots, 900\}$，我们面对当前的系统状态（主要是各用户的任务队列），通过枚举所有可能的RB分配方案，并对每种方案进行精细化的仿真，来预测未来100ms内的系统服务质量。然后，我们选择能使当前窗口QoS最大化的方案进行实施，并将演化后的系统状态作为下一个决策时刻的初始条件。具体算法流程如下：
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/第二问算法.pdf}
+    \caption{问题二MPC动态资源分配与调度算法流程图}
+    \label{fig:q2_algorithm_flow}
+\end{figure}
 
 \textbf{Step1：初始化}
 

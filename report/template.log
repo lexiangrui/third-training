@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2024.10.22)  14 AUG 2025 19:10
+This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2024.10.22)  14 AUG 2025 19:53
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1111,37 +1111,53 @@ Overfull \hbox (5.72171pt too wide) in paragraph at lines 53--54
 []\TU/STSong(0)/b/n/12.05 问 题 一：|  \TU/STSong(0)/m/n/12.05 针 对 单 个 微 基 站 和 单 一 用 户 任 务 的 场 景，|  研 究 如 何 将 有 限 的 资 源 块 在 \TU/TimesNewRoman(0)/m/n/12.05 URLLC\TU/STSong(0)/m/n/12.05 、|
  []
 
-[5] (./q1.tex
-File: figures/第一问分析.pdf Graphic file (type pdf)
-<use figures/第一问分析.pdf>
-
+File: figures/我们的工作.pdf Graphic file (type pdf)
+<use figures/我们的工作.pdf>
 
 LaTeX Font Warning: Font shape `TU/STSong(1)/b/n' undefined
-(Font)              using `TU/STSong(1)/m/n' instead on input line 6.
+(Font)              using `TU/STSong(1)/m/n' instead on input line 67.
 
-[6] [7] [8]
+[5] [6] (./q1.tex
+File: figures/第一问分析.pdf Graphic file (type pdf)
+<use figures/第一问分析.pdf>
+ [7] [8] [9]
 File: figures/第一问算法.pdf Graphic file (type pdf)
 <use figures/第一问算法.pdf>
- [9] [10]) (./q2.tex [11] [12] [13]
-Overfull \hbox (48.50827pt too wide) in paragraph at lines 150--151
+ [10]
+File: figures/q1求解结果.pdf Graphic file (type pdf)
+<use figures/q1求解结果.pdf>
+ [11]) (./q2.tex [12] [13] [14]
+File: figures/第二问算法.pdf Graphic file (type pdf)
+<use figures/第二问算法.pdf>
+ [15]
+Overfull \hbox (48.50827pt too wide) in paragraph at lines 156--157
 []\TU/STSong(0)/b/n/12.05 生 成 \TU/TimesNewRoman(0)/b/n/12.05 RB \TU/STSong(0)/b/n/12.05 分 配 方 案\TU/STSong(0)/m/n/12.05 ：|  与 问 题 一 类 似，|  枚 举 所 有 满 足 约 束 条 件 的 \TU/TimesNewRoman(0)/m/n/12.05 RB \TU/STSong(0)/m/n/12.05 分 配 方 案 $\OT1/cmr/m/n/12.05 (\OML/cmm/m/it/12.05 n[]\OT1/cmr/m/n/12.05 (\OML/cmm/m/it/12.05 t\OT1/cmr/m/n/12.05 )\OML/cmm/m/it/12.05 ; n[]\OT1/cmr/m/n/12.05 (\OML/cmm/m/it/12.05 t\OT1/cmr/m/n/12.05 )\OML/cmm/m/it/12.05 ; n[]\OT1/cmr/m/n/12.05 (\OML/cmm/m/it/12.05 t\OT1/cmr/m/n/12.05 ))$\TU/STSong(0)/m/n/12.05 ，|
  []
 
-[14] [15]) (./q3.tex [16] [17] [18] [19] [20]) (./q4.tex [21] [22] [23] [24]) (./q5.tex [25]
+[16]) (./q3.tex [17] [18] [19] [20]
+File: figures/第三问算法.pdf Graphic file (type pdf)
+<use figures/第三问算法.pdf>
+ [21]
+File: figures/第一次决策可视化.pdf Graphic file (type pdf)
+<use figures/第一次决策可视化.pdf>
+ [22]) (./q4.tex [23] [24] [25] [26]
+File: figures/第四问结果可视化.pdf Graphic file (type pdf)
+<use figures/第四问结果可视化.pdf>
+ [27]) (./q5.tex [28]
 Overfull \hbox (3.76576pt too wide) in paragraph at lines 34--35
 []\TU/STSong(0)/b/n/12.05 发 射 功 耗 $\OML/cmm/m/it/12.05 P[]\OT1/cmr/m/n/12.05 (\OML/cmm/m/it/12.05 ^^\\OT1/cmr/m/n/12.05 ) = []\OML/cmm/m/it/12.05 P[]\OT1/cmr/m/n/12.05 (\OML/cmm/m/it/12.05 ^^\\OT1/cmr/m/n/12.05 )$\TU/STSong(0)/m/n/12.05 ，|  与 总 发 射 功 率 $\OML/cmm/m/it/12.05 P[]\OT1/cmr/m/n/12.05 (\OML/cmm/m/it/12.05 ^^\\OT1/cmr/m/n/12.05 )$ \TU/STSong(0)/m/n/12.05 成 正 比。| $\OML/cmm/m/it/12.05 P[]\OT1/cmr/m/n/12.05 (\OML/cmm/m/it/12.05 ^^\\OT1/cmr/m/n/12.05 )$
  []
 
-[26] [27]) [28] (./template.bbl) [29] (/usr/local/texlive/2024/texmf-dist/tex/latex/listings/lstlang1.sty
+[29] [30] [31]) [32] (./template.bbl) [33] (/usr/local/texlive/2024/texmf-dist/tex/latex/listings/lstlang1.sty
 File: lstlang1.sty 2024/02/21 1.10 listings language file
 )
-Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on input line 164.
- (./code2/q1_clean.py [30] [31] [32] [33] [34] [35]) (./code2/q2_clean.py [36] [37] [38] [39] [40] [41] [42] [43] [44]) (./code2/q3_clean.py [45] [46] [47] [48] [49] [50] [51] [52] [53] [54] [55] [56]) (./code2/q4_clean.py [57] [58] [59] [60] [61] [62] [63] [64] [65] [66] [67] [68] [69] [70] [71]) (./code2/q5_clean.py [72] [73] [74] [75] [76] [77] [78] [79] [80] [81] [82] [83] [84] [85]) [86] [87]
+Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on input line 178.
+ (./code2/q1_clean.py [34] [35] [36] [37] [38] [39]) (./code2/q2_clean.py [40] [41] [42] [43] [44] [45] [46] [47] [48]) (./code2/q3_clean.py [49] [50] [51] [52] [53] [54] [55] [56] [57] [58] [59] [60]) (./code2/q4_clean.py [61] [62] [63] [64] [65] [66] [67] [68] [69] [70] [71] [72] [73] [74] [75]) (./code2/q5_clean.py [76] [77] [78] [79] [80] [81] [82] [83] [84] [85] [86] [87] [88] [89]) [90] [91]
 
 Package caption Warning: Unused \captionsetup[sub] on input line 11.
 See the caption package documentation for explanation.
 
-[88] (./template.aux)
+[92] (./template.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2022/08/05>
@@ -1150,25 +1166,16 @@ L3 programming layer <2022/08/05>
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
-
-Package rerunfilecheck Warning: File `template.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `template.out':
-(rerunfilecheck)             Before: CF4C535FD054945CE8BA2A22A95BCA15;10960
-(rerunfilecheck)             After:  42F2A35CB2E204B22B28F63B7898855B;10960.
+Package rerunfilecheck Info: File `template.out' has not changed.
+(rerunfilecheck)             Checksum: B0B5B36A20DFAB2E3A211D79F04EDC89;11108.
  ) 
 Here is how much of TeX's memory you used:
- 35340 strings out of 474773
- 748782 string characters out of 5757723
+ 35404 strings out of 474773
+ 750326 string characters out of 5757723
  2467839 words of memory out of 5000000
- 56785 multiletter control sequences out of 15000+600000
+ 56843 multiletter control sequences out of 15000+600000
  579678 words of font info for 191 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  108i,20n,114p,472b,2817s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on template.pdf (88 pages).
+Output written on template.pdf (92 pages).

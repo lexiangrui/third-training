@@ -1,6 +1,6 @@
 \section{问题一的模型的建立和求解}
 \subsection{问题一的描述与分析}
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/第一问分析.pdf}
     \caption{问题一场景与资源分配分析示意图}
@@ -164,11 +164,18 @@ y_k^{m} = \begin{cases}
 遍历所有RB分配方案后，总服务质量 $Q$ 最高的方案即为问题的最优解。我们记录下最优方案对应的 $(n_U, n_e, n_m)$ 组合、各用户的详细性能指标以及最终的总QoS值。
 
 \subsection{结果分析}
-通过执行上述算法，我们得到的最优资源分配方案及对应的性能指标如下：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/q1求解结果.pdf}
+    \caption{第一问所有可行解枚举结果}
+    \label{fig:q1_result}
+\end{figure}
+通过执行上述算法，我们枚举了所有可行解，如图\ref{fig:q1_result}所示。
 
 \textbf{最优资源分配方案}
 
-经枚举计算，我们找到了3个并列的最优资源分配方案，它们均能使系统总服务质量达到最大值15.7823。这三个方案的具体RB分配如下表所示。
+在所有结果中，我们找到了3个并列的最优资源分配方案，它们均能使系统总服务质量达到最大值15.7823。这三个方案的具体RB分配如下表所示。
 
 \begin{table}[H]
 \centering
@@ -185,7 +192,7 @@ y_k^{m} = \begin{cases}
 \end{tabular}
 \end{table}
 
-在以上所有方案中，各切片获得的QoS合计分数均相同，分别为：URLLC QoS合计1.9870，eMBB QoS合计3.7953，mMTC QoS合计10.0000。
+在以上三种方案中，各切片获得的QoS合计分数均相同，分别为：URLLC QoS合计1.9870，eMBB QoS合计3.7953，mMTC QoS合计10.0000。
 
  这三个方案均实现了资源的高效利用。在实际部署中，可以根据网络运营商的偏好进行选择。例如，方案1（20, 10, 20）为mMTC分配了最多的资源，适合未来mMTC连接数可能增加的场景；方案2（20, 20, 10）则向eMBB倾斜，适合视频流量大的场景；方案3（30, 10, 10）则最优先保障URLLC业务。这些方案共同构成了问题的最优解集。
 
