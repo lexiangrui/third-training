@@ -1,54 +1,23 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-"""
-问题一：单小区、无干扰、功率30 dBm。采用“切片RB枚举 + 同周期内可排队的串并行调度”以最大化总体服务质量（URLLC+eMBB+mMTC）。
-
-数据来源（相对路径，基于本脚本所在目录）：
-- 任务量：../../题目/附件/附件1/q1_任务流.csv （单位：Mbit）
-- 大规模衰减：../../题目/附件/附件1/q1_大规模衰减.csv （单位：dB）
-- 小规模瑞利：../../题目/附件/附件1/q1_小规模瑞丽衰减.csv （幅度 |h|）
-
-假设与参数：
-- p_tx = 30 dBm，b = 360 kHz，NF = 7 dB。
-- v_U=10, v_E=5, v_M=2（每类用户并发占用RB数）。
-- 决策周期 T_window = 100 ms；同一周期内允许在各切片内按“编号靠前优先”进行排队服务（先占先得，完成即释放RB，后继用户接续占用）。
-- SLA：URLLC: L<=5 ms；eMBB: L<=100 ms 且 r>=50 Mbps；mMTC: L<=500 ms。
-- QoS：
-  URLLC: y = alpha^L(ms) if L<=5ms else -M_U；alpha=0.95, M_U=5
-  eMBB:  y = 1 if (L<=100ms & r>=50Mbps)；y = r/50 if (L<=100ms & r<50Mbps)；else -M_E, M_E=3
-  mMTC:  定义比例 ratio = (#接入且满足L<=500ms)/(#当期有任务的mMTC用户数)。对每个有任务的 m 用户：
-          y_k^m = ratio 若 L<=500ms，否则 y_k^m = -M_m；最终目标按 \sum_k y_k^m 累加。
-
-实现要点：
-- 枚举(R_U, R_E, R_M)且满足R_U+R_E+R_M=50，且R_U%10==0, R_E%5==0, R_M%2==0以避免RB浪费。
-- 对每类用户以并发容量 cap_s=R_s/v_s 进行最短完工时间的无抢占调度，计算等待 Q 与总时延 L=Q+T，继而按切片QoS定义计分并汇总。
-"""
 
 from __future__ import annotations
-
 import csv
 import math
 import os
 from dataclasses import dataclass
 from typing import Dict, List, Tuple, Iterable
 
-
-"""基于脚本位置的相对路径，确保可移植性。"""
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, "..", ".."))
 ATTACH_DIR = os.path.join(ROOT_DIR, "题目", "附件", "附件1")
-
 CSV_TASK = os.path.join(ATTACH_DIR, "q1_任务流.csv")
 CSV_PL = os.path.join(ATTACH_DIR, "q1_大规模衰减.csv")
 CSV_RAY = os.path.join(ATTACH_DIR, "q1_小规模瑞丽衰减.csv")
-
 
 # 系统常量
 P_TX_DBM: float = 30.0
 B_HZ: float = 360_000.0  # 360 kHz
 NF_DB: float = 7.0
-T_WINDOW_MS: float = 100.0  # 决策周期（可排队服务窗口）
+T_WINDOW_MS: float = 100.0  
 
 V_U: int = 10
 V_E: int = 5
@@ -63,7 +32,6 @@ SLA_L_U_MS: float = 5.0
 SLA_L_E_MS: float = 100.0
 SLA_L_M_MS: float = 500.0
 SLA_R_E_MBPS: float = 50.0
-
 
 @dataclass
 class User:
@@ -94,7 +62,6 @@ def read_single_row_csv(path: str) -> Dict[str, float]:
             try:
                 result[k.strip()] = float(v)
             except ValueError:
-                # 忽略非数值
                 pass
         return result
 

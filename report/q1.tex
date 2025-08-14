@@ -1,5 +1,11 @@
 \section{问题一的模型的建立和求解}
 \subsection{问题一的描述与分析}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/第一问分析.pdf}
+    \caption{问题一场景与资源分配分析示意图}
+    \label{fig:q1-analysis}
+\end{figure}
 
 问题一考虑单个微基站的资源分配场景。该基站拥有50个资源块（Resource Block, RB），需要为三类网络切片——URLLC（高可靠低时延）、eMBB（增强移动宽带）和mMTC（大规模机器通信）进行资源分配，以最大化用户服务质量。这是一个静态资源分配优化问题，需要在满足资源约束的条件下，找到最优的资源块分配方案。
 
@@ -17,56 +23,54 @@ mMTC切片：每个用户占用2个资源块，要求时延 $L_k^m \leq 500$ ms�
 
 \textbf{QoS评估参数}：U切片的效益折扣系数 $\alpha = 0.95$，任务丢失惩罚 $M_U = 5$；e切片的任务丢失惩罚 $M_e = 3$；m切片的任务丢失惩罚 $M_m = 1$。
 
-
-
 \subsection{模型建立}
 
-为便于与问题二形成统一的时域建模框架，本文在问题一中即引入时间索引 $t$。问题一为单时刻静态场景，求解时将 $t$ 固定为某一决策时刻（记为 $t=t_0$）。
+问题一为单时刻静态场景，不引入显式时间索引。每位用户仅有一个任务，服务在一个决策窗口内完成；窗口内允许在各切片内进行“编号靠前优先”的非抢占串并行调度。
 
 \subsubsection{传输速率计算}
 
-根据附录中的信号传输模型，用户$k$在时刻$t$获得$i_k(t)$个资源块时的接收功率为：
+根据附录中的信号传输模型，用户$k$占用$i_k$个资源块时的接收功率为：
 
 \begin{equation}
-p_{\text{rx},k}(t) = 10^{\frac{p_{\text{tx}} - \phi_k(t)}{10}} \cdot |h_k(t)|^2 \quad \text{(mW)}
+p_{\text{rx},k} = 10^{\frac{p_{\text{tx}} - \phi_k}{10}} \cdot |h_k|^2 \quad \text{(mW)}
 \end{equation}
-其中，$p_{\text{tx}}$为基站发射功率（dBm），$\phi_k(t)$为大规模衰减（dB），$h_k(t)$为小规模瑞利衰落系数，$p_{\text{rx},k}(t)$为接收功率（mW）。
+其中，$p_{\text{tx}}$为基站发射功率（dBm），$\phi_k$为大规模衰减（dB），$h_k$为小规模瑞利衰落幅度，$p_{\text{rx},k}$为接收功率（mW）。
 
 考虑噪声功率的影响，噪声功率谱密度为：
 
 \begin{equation}
-N_0\big(i_k(t)\big) = -174 + 10\log_{10}\big(i_k(t) \cdot b\big) + 7 \quad \text{(dBm)}
+N_0\big(i_k\big) = -174 + 10\log_{10}\big(i_k \cdot b\big) + 7 \quad \text{(dBm)}
 \end{equation}
-其中，$i_k(t)$为用户$k$在时刻$t$占用的RB数量，$b$为单RB带宽（Hz），$-174$ dBm/Hz为热噪声谱密度，$7$ dB为噪声系数。
+其中，$i_k$为用户$k$占用的RB数量，$b$为单RB带宽（Hz），$-174$ dBm/Hz为热噪声谱密度，$7$ dB为噪声系数。
 
-信干噪比（SINR）在无干扰情况下简化为信噪比（SNR）：
+信噪比（SNR）为：
 
 \begin{equation}
-\gamma_k(t) = \frac{p_{\text{rx},k}(t)}{10^{\frac{N_0\left(i_k(t)\right)}{10}}}
+\gamma_k = \frac{p_{\text{rx},k}}{10^{\frac{N_0\left(i_k\right)}{10}}}
 \end{equation}
-其中，$N_0(\cdot)$以dBm计，$10^{\frac{N_0\left(i_k(t)\right)}{10}}$为噪声功率（mW）。
+其中，$N_0(\cdot)$以dBm计，$10^{\frac{N_0\left(i_k\right)}{10}}$为噪声功率（mW）。
 
-根据香农公式，用户$k$在时刻$t$的传输速率为：
+根据香农公式，用户$k$的传输速率为：
 
 \begin{equation}
-r_k(t) = i_k(t) \cdot b \cdot \log_2\big(1 + \gamma_k(t)\big) \quad \text{(bps)}
+r_k = i_k \cdot b \cdot \log_2\big(1 + \gamma_k\big) \quad \text{(bps)}
 \end{equation}
-其中，$r_k(t)$为传输速率（bps），$i_k(t)$为RB数量，$b$为单RB带宽。
+在本问的调度中，同一切片$s\in\{U,e,m\}$内的每位用户占用固定RB数量$v_s$，故$i_k\equiv v_s$。
 
 \subsubsection{时延计算模型}
 根据附录中描述的用户任务服务流程，用户的总时延由排队时延和传输时延两部分构成。
 
-用户$k$的传输时延$T_k$为完成其任务数据量$D_k$所需的传输时间，计算公式为：
+用户$k$的传输时延$T_k$为完成其任务数据量$D_k$所需的传输时间：
 \begin{equation}
-T_k(t) = \frac{D_k \times 10^6}{r_k(t)} \quad \text{(s)}
+T_k = \frac{D_k \times 10^6}{r_k} \quad \text{(s)}
 \end{equation}
-其中，$D_k$为任务数据量（Mbit），$r_k(t)$为用户在时刻$t$的传输速率（bps）。
+其中，$D_k$为任务数据量（Mbit），$r_k$为用户的传输速率（bps）。
 
-用户的总时延$L_k^s$为排队时延$Q_k$与传输时延$T_k$之和：
+给定切片$s$被分配的RB数量$n_s$与每用户占用$v_s$，并发能力为$C_s=\left\lfloor n_s / v_s \right\rfloor$。在同一调度窗口内，切片$s$中的用户按“编号靠前优先”顺序：
+初始分配给前$C_s$位用户，其余用户在有会话完成后接续开始服务。由此得到每位用户的等待时延$Q_k$（其开始服务时刻）与传输时延$T_k$，总时延
 \begin{equation}
-L_k^{s}(t) = Q_k(t) + T_k(t), \quad s \in \{U, e, m\}
+L_k^{s} = Q_k + T_k, \quad s \in \{U, e, m\}.
 \end{equation}
-其中，$Q_k(t)$是在该次决策窗口内调度过程中产生的等待时间。
 
 \subsubsection{服务质量评估函数}
 
@@ -76,9 +80,9 @@ L_k^{s}(t) = Q_k(t) + T_k(t), \quad s \in \{U, e, m\}
 
 服务质量函数为：
 \begin{equation}
-y_k^{U}(t) = \begin{cases}
-\alpha^{L_k^{U}(t)} & \text{若 } L_k^{U}(t) \leq L_{U}^{\text{SLA}} \\
--M_{U} & \text{若 } L_k^{U}(t) > L_{U}^{\text{SLA}}
+y_k^{U} = \begin{cases}
+\alpha^{L_k^{U}} & \text{若 } L_k^{U} \leq L_{U}^{\text{SLA}} \\
+-M_{U} & \text{若 } L_k^{U} > L_{U}^{\text{SLA}}
 \end{cases}
 \end{equation}
 其中，$\alpha\in(0,1)$为效益折扣系数（本题取$\alpha=0.95$），$M_U$为U切片任务丢失惩罚系数，$L_U^{\text{SLA}}$为U切片时延SLA。
@@ -87,10 +91,10 @@ y_k^{U}(t) = \begin{cases}
 
 e切片用户采用三段式QoS函数：
 \begin{equation}
-y_k^{e}(t) = \begin{cases}
-1 & \text{若 } r_k(t) \geq r_{e}^{\text{SLA}} \text{ 且 } L_k^{e}(t) \leq L_{e}^{\text{SLA}} \\
-\frac{r_k(t)}{r_{e}^{\text{SLA}}} & \text{若 } r_k(t) < r_{e}^{\text{SLA}} \text{ 且 } L_k^{e}(t) \leq L_{e}^{\text{SLA}} \\
--M_{e} & \text{若 } L_k^{e}(t) > L_{e}^{\text{SLA}}
+y_k^{e} = \begin{cases}
+1 & \text{若 } r_k \geq r_{e}^{\text{SLA}} \text{ 且 } L_k^{e} \leq L_{e}^{\text{SLA}} \\
+\frac{r_k}{r_{e}^{\text{SLA}}} & \text{若 } r_k < r_{e}^{\text{SLA}} \text{ 且 } L_k^{e} \leq L_{e}^{\text{SLA}} \\
+-M_{e} & \text{若 } L_k^{e} > L_{e}^{\text{SLA}}
 \end{cases}
 \end{equation}
 其中，$r_e^{\text{SLA}}$、$L_e^{\text{SLA}}$分别为e切片的速率与时延SLA，$M_e$为惩罚系数。
@@ -99,35 +103,39 @@ y_k^{e}(t) = \begin{cases}
 
 每个mMTC用户$k$的QoS评估为：
 \begin{equation}
-y_k^{m}(t) = \begin{cases}
-\dfrac{\sum_{i \in \mathcal{U}_{m}} c_i'(t)}{\sum_{i \in \mathcal{U}_{m}} c_i(t)} & \text{若 } L_k^{m}(t) \le L_{m}^{\text{SLA}} \\
--M_{m} & \text{若 } L_k^{m}(t) > L_{m}^{\text{SLA}}
+y_k^{m} = \begin{cases}
+\dfrac{\sum_{i \in \mathcal{U}_{m}} c_i'}{\sum_{i \in \mathcal{U}_{m}} c_i} & \text{若 } L_k^{m} \le L_{m}^{\text{SLA}} \\
+-M_{m} & \text{若 } L_k^{m} > L_{m}^{\text{SLA}}
 \end{cases}
 \end{equation}
-其中，$\mathcal{U}_m$为m切片用户集合，$c_i(t)$表示是否有任务需求，$c_i'(t)$表示是否成功接入。
+其中，$\mathcal{U}_m$为m切片用户集合，$c_i$表示用户$i$是否有任务（本问为“有数据量”），$c_i'$表示该用户是否成功在SLA内完成任务。实现上先计算比例$\text{ratio}=\frac{\sum c_i'}{\sum c_i}$，再对每个有任务的m用户按“成功得$\text{ratio}$，失败得$-M_m$”计分并加总。
 
 \subsubsection{优化模型}
 
-基于上述分析，建立如下单时刻（$t$ 固定）优化模型：
+基于上述分析，建立如下单时刻优化模型：
 
 \begin{equation}
 \begin{aligned}
-\max_{n_U(t), n_e(t), n_m(t)} \quad & Q(t) = \sum_{k \in \mathcal{U}_U} y_k^{U}(t) + \sum_{k \in \mathcal{U}_e} y_k^{e}(t) + \sum_{k \in \mathcal{U}_m} y_k^{m}(t) \\
+\max_{n_U, n_e, n_m} \quad & Q = \sum_{k \in \mathcal{U}_U} y_k^{U} + \sum_{k \in \mathcal{U}_e} y_k^{e} + \sum_{k \in \mathcal{U}_m} y_k^{m} \\
 \text{s.t.} \quad & \begin{cases}
- n_U(t) + n_e(t) + n_m(t) = N \\
- n_U(t) \bmod 10 = 0 \\
- n_e(t) \bmod 5 = 0 \\
- n_m(t) \bmod 2 = 0 \\
- n_s(t) \in \mathbb{Z}_{\ge 0}, \quad \forall s \in \mathcal{S}
+ n_U + n_e + n_m = N \\
+ n_U \bmod 10 = 0 \\
+ n_e \bmod 5 = 0 \\
+ n_m \bmod 2 = 0 \\
+ n_s \in \mathbb{Z}_{\ge 0}, \quad \forall s \in \mathcal{S}
  \end{cases}
  \end{aligned}
  \end{equation}
-其中，$n_U(t), n_e(t), n_m(t)$分别为时刻$t$分配给U、e、m切片的RB个数，$\mathcal{S}=\{U,e,m\}$，$\mathcal{U}_s$为切片$s$的用户集合；$y_k^{U}(t)$、$y_k^{e}(t)$、$y_k^{m}(t)$为用户级QoS得分。
-
-其中，第一个约束为资源块总数限制，随后三行分别为URLLC、eMBB、mMTC的占用粒度约束，最后为非负整数约束。
+其中，$n_U, n_e, n_m$分别为分配给U、e、m切片的RB个数，$\mathcal{S}=\{U,e,m\}$，$\mathcal{U}_s$为切片$s$的用户集合。
 \subsection{模型求解}
 
 该优化问题属于整数规划问题，考虑到总资源块数量有限（$N=50$），且各切片用户占用RB数量固定，使得分配给各切片的RB数量 $n_s(t)$ 的可行组合是有限的。因此，我们采用枚举法结合调度仿真的策略进行求解，以确保找到全局最优解。算法流程如下（本题固定单个决策时刻 $t=t_0$）：
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/第一问算法.pdf}
+    \caption{第一问资源分配与调度算法流程图}
+    \label{fig:q1_algorithm_flow}
+\end{figure}
 
 \textbf{Step1：生成RB分配方案}
 
@@ -155,7 +163,7 @@ y_k^{m}(t) = \begin{cases}
 
 遍历所有RB分配方案后，总服务质量 $Q$ 最高的方案即为问题的最优解。我们记录下最优方案对应的 $(n_U, n_e, n_m)$ 组合、各用户的详细性能指标以及最终的总QoS值。
 
-\subsection{求解结果}
+\subsection{结果分析}
 通过执行上述算法，我们得到的最优资源分配方案及对应的性能指标如下：
 
 \textbf{最优资源分配方案}
@@ -179,12 +187,7 @@ y_k^{m}(t) = \begin{cases}
 
 在以上所有方案中，各切片获得的QoS合计分数均相同，分别为：URLLC QoS合计1.9870，eMBB QoS合计3.7953，mMTC QoS合计10.0000。
 
-\textbf{结果分析}
+ 这三个方案均实现了资源的高效利用。在实际部署中，可以根据网络运营商的偏好进行选择。例如，方案1（20, 10, 20）为mMTC分配了最多的资源，适合未来mMTC连接数可能增加的场景；方案2（20, 20, 10）则向eMBB倾斜，适合视频流量大的场景；方案3（30, 10, 10）则最优先保障URLLC业务。这些方案共同构成了问题的最优解集。
 
-\begin{itemize}
-    \item \textbf{最优性分析}：计算结果显示，存在三个不同的RB分配方案能够达到相同的最优目标函数值15.7823，如上表\ref{tab:q1_best_solutions}所示。这些方案的共同点在于，它们为URLLC、eMBB和mMTC切片带来的QoS贡献是完全相同的。这表明在当前用户任务和信道条件下，只要分配给U切片、eMBB切片和mMTC切片的RB数量分别不低于20、10和10个，就能保证所有用户达到最佳的服务水平。这种现象说明资源配置具有一定的灵活性和鲁棒性。
-    \item \textbf{用户性能详情}：在任何一个最优方案下，各用户的性能指标均相同。所有URLLC用户的时延均远低于5ms的SLA要求（如U1为0.145ms，U2为0.110ms），QoS得分接近1。eMBB用户中，e1, e2, e4满足速率与时延双重标准，QoS为1；e3用户速率未达标（39.77 Mbps < 50 Mbps），但仍在SLA时延内，获得了比例得分0.7953。所有mMTC用户均在极低时延下完成传输（均小于1ms），远优于500ms的SLA标准，因此获得了满分。
-    \item \textbf{资源效率与选择}：这三个方案均实现了资源的高效利用。在实际部署中，可以根据网络运营商的偏好进行选择。例如，方案1（20, 10, 20）为mMTC分配了最多的资源，适合未来mMTC连接数可能增加的场景；方案2（20, 20, 10）则向eMBB倾斜，适合视频流量大的场景；方案3（30, 10, 10）则最优先保障URLLC业务。这些方案共同构成了问题的最优解集。
-\end{itemize}
 
 综上所述，我们提出的资源分配方案能够有效满足各类切片用户的服务需求，实现了系统整体服务质量的最优。
