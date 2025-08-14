@@ -69,12 +69,12 @@
 \contentsline {subsection}{\numberline {9.1}模型的优点}{29}{subsection.9.1}%
 \contentsline {subsection}{\numberline {9.2}模型的缺点}{29}{subsection.9.2}%
 \contentsline {section}{参考文献}{29}{section*.15}%
-\contentsline {section}{附录 \numberline {A}文件列表}{30}{appendix.a.A}%
-\contentsline {section}{附录 \numberline {B}代码}{30}{appendix.a.B}%
-\contentsline {section}{附录 \numberline {C}求解结果}{86}{appendix.a.C}%
-\contentsline {subsection}{\numberline {3.1}问题一：单基站枚举结果}{86}{subsection.a.C.1}%
-\contentsline {subsection}{\numberline {3.2}问题二：单微基站MPC滚动窗口最优决策}{87}{subsection.a.C.2}%
-\contentsline {subsection}{\numberline {3.3}问题三：多基站GA-MPC优化结果}{87}{subsection.a.C.3}%
-\contentsline {subsection}{\numberline {3.4}问题四：异构网络GA-MPC优化结果}{88}{subsection.a.C.4}%
-\contentsline {subsection}{\numberline {3.5}问题五：能耗优化GA-MPC结果}{88}{subsection.a.C.5}%
+\contentsline {section}{附录 \numberline {A}文件列表}{30}{appendix.1.A}%
+\contentsline {section}{附录 \numberline {B}代码}{30}{appendix.1.B}%
+\contentsline {section}{附录 \numberline {C}求解结果}{86}{appendix.1.C}%
+\contentsline {subsection}{\numberline {3.1}问题一：单基站枚举结果}{86}{subsection.1.C.1}%
+\contentsline {subsection}{\numberline {3.2}问题二：单微基站MPC滚动窗口最优决策}{87}{subsection.1.C.2}%
+\contentsline {subsection}{\numberline {3.3}问题三：多基站GA-MPC优化结果}{87}{subsection.1.C.3}%
+\contentsline {subsection}{\numberline {3.4}问题四：异构网络GA-MPC优化结果}{88}{subsection.1.C.4}%
+\contentsline {subsection}{\numberline {3.5}问题五：能耗优化GA-MPC结果}{88}{subsection.1.C.5}%
 \contentsfinish 
