@@ -1,5 +1,5 @@
 % 参数
-csvPath = '/Users/lexiangrui/Desktop/训三/report/code/q1_enum_results.csv';
+csvPath = 'D:/BISAI/8.11/third-training2/third-training/report/code/q1_enum_results.csv';
 topN = 20;  % 显示前N个最优方案，可根据需要调整
 
 % 读数
