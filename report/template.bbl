@@ -4,8 +4,8 @@
 \expandafter\ifx\csname urlstyle\endcsname\relax\else
   \urlstyle{same}\fi
 
-\bibitem[董雷\ 等(2016)董雷, 陈卉, and 蒲天骄等]{ZGDC201617011}
-董雷, 陈卉, 蒲天骄等.
+\bibitem[董雷\ 等(2016)董雷, 陈卉, and 蒲天骄 等]{ZGDC201617011}
+董雷, 陈卉, 蒲天骄 等.
 \newblock 基于模型预测控制的主动配电网多时间尺度动态优化调度\allowbreak[J].
 \newblock 中国电机工程学报, 2016, 36\penalty0 (17):\penalty0 4609-4617.
 
@@ -20,7 +20,7 @@
 \newblock 中国惯性技术学报, 2024, 32\penalty0 (11):\penalty0 1142-1150.
 
 \bibitem[Naronglerdrit et~al.(2025)Naronglerdrit and Parnichkun]{SSJDEBA60604345B90069821C30F1E772659}
-NARONGLERDRIT~P, PARNICHKUN~M.
+Naronglerdrit~P, Parnichku~M.
 \newblock Ga-based mpc for satellite’s attitude and orbit control\allowbreak[J].
 \newblock Discover Applied Sciences, 2025, 7\penalty0 (8):\penalty0 811-811.
 
@@ -35,17 +35,17 @@ NARONGLERDRIT~P, PARNICHKUN~M.
 \newblock 通信学报, 2023, 44\penalty0 (05):\penalty0 234-245.
 
 \bibitem[dos Santos Elco~Joao et~al.(2020)dos Santos Elco~Joao, Demo, and Luiz]{XJAZF66ED91B3C17FD57CE17DAC785CBE4F2}
-DOS SANTOS ELCO~JOAO, DEMO~S~R, LUIZ~R~J.
-\newblock Network slicing for urllc and embb with max-matching diversity channel allocation\allowbreak[J].
+Dos Santos Elco~Joao, Demo~S~R, Luiz~R~J.
+\newblock Network slicing for URLLC and eMBB with max-matching diversity channel allocation\allowbreak[J].
 \newblock IEEE Communications Letters, 2020, 24\penalty0 (3):\penalty0 658-661.
 
 \bibitem[Francesca et~al.(2020)Francesca, Stefano, and Patrice]{XJAZ380D796D0660E06028CF0A170485E808}
-FRANCESCA~F, STEFANO~M, PATRICE~P.
+Francesca~F, Stefano~M, Patrice~P.
 \newblock Multi-resource allocation for network slicing\allowbreak[J].
 \newblock IEEE/ACM Transactions on Networking, 2020, 28\penalty0 (3):\penalty0 1-14.
 
 \bibitem[Tang(2025)]{SQLI61DDEA30245E94CD0FA7D647FA5A7B1E}
-TANG~Z.
+Tang~Z.
 \newblock Real-time urban flood management using an improved genetic algorithm-assisted model predictive control approach\allowbreak[J].
 \newblock World Scientific Research Journal, 2025, 11\penalty0 (6):\penalty0 117-128.
 

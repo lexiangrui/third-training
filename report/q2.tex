@@ -33,7 +33,7 @@ MPC利用系统的数学模型（如状态空间模型、传递函数等）预�
 定义用户$k$在时刻$t$的任务队列状态：
 
 \begin{itemize}
-  \item $A_{k,\tau}(t)$：用户$k$在时刻$\tau$到达且在时刻$t$仍在队列中的任务数据量（Mbit）
+  \item $A_{k,\tau}(t)$：用户$k$在时刻$\tau$到达且在时刻$t$仍在队列中的任务数据量
   \item $Q_k(t) = \sum_{\tau=0}^{t} A_{k,\tau}(t)$：用户$k$在时刻$t$的总排队任务量
 \end{itemize}
 
@@ -48,7 +48,7 @@ A_{k,\tau}(\tau) = \text{TaskFlow}_k(\tau)
 \textbf{(2) 任务服务：}
 在决策时刻$t$，若用户$k$被分配$i_k(t)$个RB，则在接下来的100ms内可传输的数据量为：
 \begin{equation}
-S_k(t) = r_k(t) \times 0.1 \times 10^{-6} \quad \text{(Mbit)}
+S_k(t) = r_k(t) \times 0.1 \times 10^{-6} 
 \end{equation}
 
 \textbf{(3) 队列更新：}
@@ -124,7 +124,7 @@ Y_m(t) &= \sum_{k \in \mathcal{U}_m} y_k^m(t),
   n_U(t) + n_e(t) + n_m(t) = 50\\
   n_U(t) \bmod 10 = 0,\; n_e(t) \bmod 5 = 0,\; n_m(t) \bmod 2 = 0\\
   Q_k(t+100) = \max\!\left(0, Q_k(t) + \Delta A_k(t) - S_k(t)\right) \\
-  n_s(t) \in \mathbb{Z}_{\ge 0}\\
+  n_s(t) \in \mathbb{N}^* \\
   \forall t \in \mathcal{T},\;s \in \mathcal{S},\; \forall k
   \end{cases}
   \end{aligned}

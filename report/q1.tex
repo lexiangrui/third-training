@@ -32,28 +32,28 @@ mMTC切片：每个用户占用2个资源块，要求时延 $L_k^m \leq 500$ ms�
 根据附录中的信号传输模型，用户$k$占用$i_k$个资源块时的接收功率为：
 
 \begin{equation}
-p_{\text{rx},k} = 10^{\frac{p_{\text{tx}} - \phi_k}{10}} \cdot |h_k|^2 \quad \text{(mW)}
+p_{\text{rx},k} = 10^{\frac{p_{\text{tx}} - \phi_k}{10}} \cdot |h_k|^2 
 \end{equation}
-其中，$p_{\text{tx}}$为基站发射功率（dBm），$\phi_k$为大规模衰减（dB），$h_k$为小规模瑞利衰落幅度，$p_{\text{rx},k}$为接收功率（mW）。
+其中，$p_{\text{tx}}$为基站发射功率，$\phi_k$为大规模衰减，$h_k$为小规模瑞利衰落幅度，$p_{\text{rx},k}$为接收功率。
 
 考虑噪声功率的影响，噪声功率谱密度为：
 
 \begin{equation}
-N_0\big(i_k\big) = -174 + 10\log_{10}\big(i_k \cdot b\big) + 7 \quad \text{(dBm)}
+N_0\big(i_k\big) = -174 + 10\log_{10}\big(i_k \cdot b\big) + 7 
 \end{equation}
-其中，$i_k$为用户$k$占用的RB数量，$b$为单RB带宽（Hz），$-174$ dBm/Hz为热噪声谱密度，$7$ dB为噪声系数。
+其中，$i_k$为用户$k$占用的RB数量，$b$为单RB带宽，$-174$ dBm/Hz为热噪声谱密度，$7$ dB为噪声系数。
 
 信噪比（SNR）为：
 
 \begin{equation}
 \gamma_k = \frac{p_{\text{rx},k}}{10^{\frac{N_0\left(i_k\right)}{10}}}
 \end{equation}
-其中，$N_0(\cdot)$以dBm计，$10^{\frac{N_0\left(i_k\right)}{10}}$为噪声功率（mW）。
+其中，$N_0(\cdot)$以dBm计，$10^{\frac{N_0\left(i_k\right)}{10}}$为噪声功率。
 
 根据香农公式，用户$k$的传输速率为：
 
 \begin{equation}
-r_k = i_k \cdot b \cdot \log_2\big(1 + \gamma_k\big) \quad \text{(bps)}
+r_k = i_k \cdot b \cdot \log_2\big(1 + \gamma_k\big) 
 \end{equation}
 在本问的调度中，同一切片$s\in\{U,e,m\}$内的每位用户占用固定RB数量$v_s$，故$i_k\equiv v_s$。
 
@@ -62,9 +62,9 @@ r_k = i_k \cdot b \cdot \log_2\big(1 + \gamma_k\big) \quad \text{(bps)}
 
 用户$k$的传输时延$T_k$为完成其任务数据量$D_k$所需的传输时间：
 \begin{equation}
-T_k = \frac{D_k \times 10^6}{r_k} \quad \text{(s)}
+T_k = \frac{D_k \times 10^6}{r_k} 
 \end{equation}
-其中，$D_k$为任务数据量（Mbit），$r_k$为用户的传输速率（bps）。
+其中，$D_k$为任务数据量，$r_k$为用户的传输速率。
 
 给定切片$s$被分配的RB数量$n_s$与每用户占用$v_s$，并发能力为$C_s=\left\lfloor n_s / v_s \right\rfloor$。在同一调度窗口内，切片$s$中的用户按“编号靠前优先”顺序：
 初始分配给前$C_s$位用户，其余用户在有会话完成后接续开始服务。由此得到每位用户的等待时延$Q_k$（其开始服务时刻）与传输时延$T_k$，总时延
@@ -122,7 +122,7 @@ y_k^{m} = \begin{cases}
  n_U \bmod 10 = 0 \\
  n_e \bmod 5 = 0 \\
  n_m \bmod 2 = 0 \\
- n_s \in \mathbb{Z}_{\ge 0}, \quad \forall s \in \mathcal{S}
+ n_s \in \mathbb{N}^*, \quad \forall s \in \mathcal{S}
  \end{cases}
  \end{aligned}
  \end{equation}
